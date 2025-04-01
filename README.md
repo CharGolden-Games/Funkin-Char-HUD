@@ -9,7 +9,7 @@
 
 ### And changes the following:
 
-- Score text now gives you more useful information see #
+- Score text now gives you more useful information see [Score Text](#score-text---vs-char-hud--psych-hud)
 
 ## Configuration
 
