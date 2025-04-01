@@ -1,0 +1,15 @@
+{
+    "colors": [
+        {
+            "affects": [
+                "bf",
+                "bf-car",
+                "bf-christmas",
+                "bf-dark",
+                "bf-holding-gf",
+                "bf-pixel"
+            ],
+            "color": "0xFF31b1d1"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "title": "Char's Funkin' HUD",
+    "description": "Adds some QOL HUD shit!",
+    "contributors": [
+        {
+            "name": "CharGoldenYT",
+            "role": "Coder",
+            "url": "https://vschar-official.com"
+        }
+    ],
+    "api_version": "0.5.0",
+    "mod_version": "0.1.0",
+    "license": "Apache-2.0"
+}

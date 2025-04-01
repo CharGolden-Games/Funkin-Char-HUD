@@ -1,0 +1,317 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.util.FlxStringUtil;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+
+import StringTools;
+
+typedef HBColor = {
+    var affects:Array<String>;
+    var color:String;
+}
+
+class ScoreTxt extends Module
+{
+    var game:PlayState = null;
+    var scoreTxtTween:FlxTween;
+    var scoreTxt:FlxText;
+
+    // Score Variables
+    var sicks:Int = 0;
+    var goods:Int = 0;
+    var bads:Int = 0;
+    var shits:Int = 0;
+    var misses:Int = 0;
+    var totalPlayed:Float = 0;
+    var totalHit:Float = 0.0;
+    var accuracy:Float = 0;
+    var fcString:String = 'N/A';
+    var rating:String = '';
+
+    // Settings
+    var vsCharHUD:Bool = false;
+    var simpleRatings:Bool = false;
+
+    // Rating Shiz
+    var ratingStuff:Array<Array<Dynamic>> = [
+		['You Suck!', 0.2], //From 0% to 19%
+		['Shit', 0.4], //From 20% to 39%
+		['Bad', 0.5], //From 40% to 49%
+		['Bruh', 0.6], //From 50% to 59%
+		['Meh', 0.69], //From 60% to 68%
+		['Nice', 0.7], //69%
+		['Good', 0.8], //From 70% to 79%
+		['Great', 0.9], //From 80% to 89%
+		['Sick!', 1], //From 90% to 99%
+		['Perfect!!', 1] //The value on this one isn't used actually, since Perfect is always "1"
+	];
+    var vsCharRatingStuff:Array<Array<Dynamic>> = [
+        ['COORDINATION, HAVE YOU HEARD OF IT?', 0.2], // From 0% to 19%
+        ['Are you even hitting the notes?', 0.4], // From 20% to 39%
+        ['Get better nerd.', 0.5], // From 40% to 49%
+        ['Bruh', 0.6], // From 50% to 59%
+        ['Gettin\' there.', 0.69], // From 60% to 68%
+        ['Hehe, Funny Number', 0.7], // 69%
+        ['Pretty Nice', 0.8], // From 70% to 79%
+        ['Kickin\' Ass!', 0.9], // From 80% to 89%
+        ['HELL YEAH!', 1], // From 90% to 99%
+        ['YOU ARE A BOT!!', 1] // The value on this one isn't used actually, since Perfect is always "1"
+    ];
+
+    public function new()
+    {
+        super('ScoreTXT - Char HUD');
+    }
+
+    public function onCountdownStart(event:CountdownScriptEvent) 
+    {
+        checkSettings();
+        game = PlayState.instance;
+
+        game.scoreText.visible = false;
+
+        if (scoreTxt != null)
+            scoreTxt.destroy();
+
+        sicks = 0;
+        goods = 0;
+        bads = 0;
+        shits = 0;
+        totalPlayed = 0;
+        totalHit = 0.0;
+        accuracy = 0;
+        misses = 0;
+        fcString = 'N/A';
+        rating = '';
+
+        var scoreString:String = 'Score: 0 | Messed up 0 times\nAccuracy: N/A | Rating: YOU HAVEN\'T DONE SHIT YET';
+        if (!vsCharHUD)
+        {
+            scoreString = 'Score: 0 | Misses: 0 | Rating: ?';
+        }
+        scoreTxt = new FlxText(0, game.healthBar.y + 30, FlxG.width, scoreString, 16);
+        scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        if (!vsCharHUD)
+            scoreTxt.size = 20;
+        scoreTxt.scrollFactor.set();
+        scoreTxt.zIndex = 1000;
+        game.add(scoreTxt);
+        scoreTxt.cameras = [game.camHUD];
+    }
+
+    function updateScore()
+    {
+        updateAccuracy();
+        updateFC();
+        updateRating();
+
+        var addition:String = '';
+        if (!['Bruh', 'Get better nerd.', 'Are you even hitting the notes?', 'COORDINATION, HAVE YOU HEARD OF IT?'].contains(rating))
+        {
+            if ((misses + bads + shits) > 0)
+                addition = ' (Actually you kinda fucking suck.)';
+            if (fcString == 'Clear')
+                addition = ' (Actually you fucking REEK!)';
+        }
+        var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(game.songScore, false) 
+        + ' | Messed up ' + Std.string(misses + bads + shits) + ' times\nAccuracy: ' 
+        + Std.string(accuracyPercent) + '% [' + fcString + '] | Rating: ' + rating + addition;
+
+        if (!vsCharHUD)
+        {
+            scoreString = 'Score: ' + Std.string(game.songScore) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
+        }
+        scoreTxt.text = scoreString;
+
+        if(scoreTxtTween != null) {
+            scoreTxtTween.cancel();
+        }
+        scoreTxt.scale.x = 1.075;
+        scoreTxt.scale.y = 1.075;
+        scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+            onComplete: function(twn:FlxTween) {
+                scoreTxtTween = null;
+            }
+        });
+    }
+
+    function checkSettings()
+    {
+        if (!Assets.exists('assets/data/vsCharHud/settings.json'))
+        {
+            vsCharHUD = false;
+            simpleRatings = false;
+        }
+        else
+        {
+            try
+            {
+                var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+
+                trace(settings);
+                vsCharHUD = settings.vsCharHUD;
+                simpleRatings = settings.simpleRatings;
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+
+                vsCharHUD = false;
+                simpleRatings = false;
+            }
+        }
+    }
+
+    function updateRating()
+    {
+        var ratings:Array<Array<Dynamic>> = vsCharRatingStuff;
+        if (!vsCharHUD)
+            ratings = ratingStuff;
+        if (accuracy >= 1)
+        {
+            rating = ratings[ratings.length - 1][0];
+        }
+        else
+        {
+            for (i in 0...ratings.length - 1)
+            {
+                if (accuracy < ratings[i][1])
+                {
+                    rating = ratings[i][0];
+                    break;
+                }
+            }
+        }
+    }
+
+    function updateAccuracy()
+    {
+        trace(totalHit);
+        trace(totalPlayed);
+        accuracy = totalHit / totalPlayed;
+        accuracyPercent = Math.floor((accuracy * 100) * 100) / 100;
+    }
+
+    function updateFC()
+    {
+        fcString = 'Clear';
+        if (misses < 1) {
+            if (sicks > 0)
+                fcString = 'SFC';
+            if (goods > 0)
+                fcString = 'GFC';
+            if (bads > 0 || shits > 0)
+                fcString = 'FC';
+        }
+        else if (misses < 10)
+        {
+            fcString = 'SDCB';
+        }
+    }
+
+    public function onNoteHit(event:HitNoteScriptEvent)
+    {
+        if (event.judgement != 'perfect')
+        {
+            totalPlayed++;
+            switch (event.judgement)
+            {
+                case 'sick':
+                    sicks++;
+                    ratingMod(1);
+                case 'good':
+                    goods++;
+                    ratingMod(0.67);
+                case 'bad':
+                    bads++;
+                    ratingMod(0.34, true);
+                case 'shit':
+                    shits++;
+            }
+            updateScore();
+        }
+    }
+
+    function ratingMod(change:Float, isBad:Bool = false)
+    {
+        if (simpleRatings)
+        {
+            if (!isBad)
+                totalHit += 1;
+        }
+        else
+        {
+            totalHit += change;
+        }
+    }
+
+    function startsWith(s:String, start:String):String
+    {
+        return StringTools.startsWith(s, start);
+    }
+    var hbColors:Array<String> = [];
+    function merge_ColorJson():Array<Int>
+    {
+        hbColors = [];
+        if (Assets.exists('assets/data/vsCharHud/colors.json'))
+        {
+            var json:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/colors.json'));
+            var colors:Array<Array<HBColor>> = [];
+            for (key in Reflect.fields(json))
+            {
+                if (startsWith(key, 'colors'))
+                {
+                    colors.push(Reflect.field(key));
+                }
+            }
+
+            for (modColors in colors)
+            {
+                for (colorMap in modColors)
+                    {
+                        hbColors.push({affects: colorMap.affects, color: colorMap.color});
+                    }
+            }
+        }
+    }
+
+    function getColor(charJson:String, isPlayer:Bool = false):Int
+    {
+        for (color in hbColors)
+        {
+            for (affects in color.affects)
+            {
+                if (affects == charJson)
+                {
+                    return Std.int(color.color);
+                }
+            }
+        }
+
+        return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+    }
+    
+    public function onNoteMiss(event:NoteScriptEvent)
+    {
+        totalPlayed++;
+        misses++;
+        updateScore();
+    }
+}

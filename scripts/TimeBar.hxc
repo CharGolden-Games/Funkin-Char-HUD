@@ -1,0 +1,154 @@
+// Flixel
+import flixel.FlxSprite;
+import flixel.ui.FlxBar;
+import flixel.ui.FlxBarFillDirection;
+import flixel.util.FlxStringUtil;
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.FlxObject;
+import flixel.FlxCamera;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.ui.transition.StickerSubState;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+import funkin.graphics.FunkinSprite;
+import funkin.Paths;
+import funkin.play.ResultState;
+
+class TimeBar extends Module
+{
+    var game:PlayState = null;
+
+
+    public function new()
+    {
+        super('TimeBar - Char HUD');
+    }
+
+    var timeBar:FlxBar;
+    var timeBarBG:FunkinSprite;
+    var timeTxt:FlxText;
+    var timePercent:Float = 0;
+    var vsCharColors:Bool = false;
+
+    public function onCountdownStart(event:CountdownScriptEvent) 
+    {
+        checkSettings();
+        game = PlayState.instance;
+        timeBarBG = FunkinSprite.create(0,10,'timeBar');
+        timeBarBG.screenCenter(0x01);
+        timeBarBG.alpha = 0;
+
+        timeBar = new FlxBar(timeBarBG.x + 4, timeBarBG.y + 4, FlxBarFillDirection.LEFT_TO_RIGHT, Std.int(timeBarBG.width - 8), Std.int(timeBarBG.height - 8), this, 'timePercent', 0, 1);
+        timeBar.scrollFactor.set();
+        var colors:Array<Int> = [0xFF000000, 0xFFFFFFFF];
+        if (vsCharColors)
+        {
+            colors = [0xFFEE6285, 0xFFFFAA44];
+        }
+        timeBar.createFilledBar(colors[0], colors[1]);
+        timeBar.alpha = 0;
+
+        timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', 25);
+        timeTxt.setFormat(Paths.font('vcr.ttf'), 25, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        timeTxt.scrollFactor.set();
+        timeTxt.zIndex = 999;
+        timeTxt.alpha = 0;
+        
+        game.add(timeBarBG);
+        game.add(timeBar);
+        game.add(timeTxt);
+
+        timeBar.cameras = [game.camHUD];
+        timeBarBG.cameras = [game.camHUD];
+        timeTxt.cameras = [game.camHUD];
+    }
+
+    function checkSettings()
+    {
+        if (!Assets.exists('assets/data/vsCharHud/settings.json'))
+        {
+            vsCharColors = false;
+        }
+        else
+        {
+            try
+            {
+                var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+
+                vsCharColors = settings.useVSCharColors;
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+
+                vsCharColors = false;
+            }
+        }
+    }
+
+    var timeTweens:Array<FlxTween> = [];
+    public function onSongStart(event:ScriptEvent)
+    {
+		timeTweens.push(FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+		timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+		timeTweens.push(FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+    }
+
+    public function onUpdate(event:UpdateScriptEvent)
+    {
+        if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
+            timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
+
+        if (timeBar != null)
+        {
+            try
+            {
+                timePercent = Conductor.instance.songPosition / FlxG.sound.music.length;
+            }
+            catch(e:Dynamic)
+            {
+                timePercent = 0.5; // to test the bar.
+            }
+            timeBar.value = timePercent;
+            //trace(timePercent);
+        }
+    }
+    
+    public function onSubStateOpenBegin(event):Void 
+    {
+        super.onSubStateOpenBegin(event);
+        
+        if (Std.isOfType(event.targetState, StickerSubState) || Std.isOfType(event.targetState, ResultState))
+        {
+            game = null;
+            timeBar = null;
+            timeBarBG = null;
+            timeTxt = null;
+        }
+    }
+
+    public function onSongRetry(event:ScriptEvent)
+    {
+        game = null;
+        for (tween in timeTweens)
+        {
+            if (tween != null)
+                tween.cancel();
+        }
+        timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+    }
+}
