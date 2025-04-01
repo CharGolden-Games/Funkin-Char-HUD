@@ -1,5 +1,5 @@
 {
-    "useVSCharColors": false,
+    "useVSCharColors": true,
     "vsCharHUD": true,
     "simpleRatings": false
 }
