@@ -101,19 +101,26 @@ class ScoreTxt extends Module
         fcString = 'N/A';
         rating = '';
 
-        var scoreString:String = 'Score: 0 | Messed up 0 times\nAccuracy: N/A | Rating: YOU HAVEN\'T DONE SHIT YET';
+        var scoreString:String = 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET';
         if (!vsCharHUD)
         {
             scoreString = 'Score: 0 | Misses: 0 | Rating: ?';
         }
-        scoreTxt = new FlxText(0, game.healthBar.y + 30, FlxG.width, scoreString, 16);
-        scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        scoreTxt = new FlxText(0, 672, FlxG.width, scoreString);
+        scoreTxt.setFormat(Paths.font('vcr.ttf'), 18, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        scoreTxt.borderSize = 2;
         if (!vsCharHUD)
             scoreTxt.size = 20;
         scoreTxt.scrollFactor.set();
         scoreTxt.zIndex = 1000;
         game.add(scoreTxt);
         scoreTxt.cameras = [game.camHUD];
+        
+        // Now we move the damn healthbar out of the way.
+        game.healthBar.y = 642;
+        game.healthBarBG.y = 638;
+        game.iconP1.y += 567;
+        game.iconP2.y += 567;
     }
 
     function updateScore()
@@ -131,8 +138,8 @@ class ScoreTxt extends Module
                 addition = ' (Actually you fucking REEK!)';
         }
         var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(game.songScore, false) 
-        + ' | Messed up ' + Std.string(misses + bads + shits) + ' times\nAccuracy: ' 
-        + Std.string(accuracyPercent) + '% [' + fcString + '] | Rating: ' + rating + addition;
+        + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
+        + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
 
         if (!vsCharHUD)
         {
@@ -203,8 +210,6 @@ class ScoreTxt extends Module
 
     function updateAccuracy()
     {
-        trace(totalHit);
-        trace(totalPlayed);
         accuracy = totalHit / totalPlayed;
         accuracyPercent = Math.floor((accuracy * 100) * 100) / 100;
     }
@@ -245,8 +250,24 @@ class ScoreTxt extends Module
                 case 'shit':
                     shits++;
             }
+            if (!simpleRatings)
+            {
+                if (event.hitDiff > 0 && totalHit <= totalPlayed)
+                {
+                    ratingMod((-event.hitDiff * 0.01));
+                }
+                else if (totalHit < totalPlayed)
+                {
+                    ratingMod((-event.hitDiff * 0.01));
+                }
+            }
             updateScore();
         }
+    }
+
+    public function onNoteGhostMiss(event:GhostMissNoteScriptEvent)
+    {
+        event.cancel();
     }
 
     function ratingMod(change:Float, isBad:Bool = false)
@@ -266,6 +287,7 @@ class ScoreTxt extends Module
     {
         return StringTools.startsWith(s, start);
     }
+
     var hbColors:Array<String> = [];
     function merge_ColorJson():Array<Int>
     {

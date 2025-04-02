@@ -65,6 +65,7 @@ class TimeBar extends Module
         timeTxt.scrollFactor.set();
         timeTxt.zIndex = 999;
         timeTxt.alpha = 0;
+        timeTxt.borderSize = 2;
         
         game.add(timeBarBG);
         game.add(timeBar);

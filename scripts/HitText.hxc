@@ -1,0 +1,75 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.util.FlxStringUtil;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+
+import StringTools;
+
+class HitText extends Module
+{
+    var game:PlayState;
+    public function new()
+    {
+        super('Hit Text - Char HUD');
+    }
+
+    var hitText:FlxText;
+    public function onCountdownStart(event:CountdownScriptEvent)
+    {
+        game = PlayState.instance;
+    }
+
+    var textTween:FlxTween;
+    public function onNoteHit(event:HitNoteScriptEvent)
+    {
+
+        if (event.judgement != 'perfect')
+        {
+            if (textTween != null)
+                textTween.cancel();
+
+            if (hitText != null)
+                hitText.destroy();
+                
+            hitText = new FlxText(0, 0, 0, '-ms', 16);
+            hitText.color = 0xFF222222;
+            hitText.alpha = 0;
+            hitText.cameras = [game.camHUD];
+            hitText.screenCenter();
+            hitText.x += -200;
+            game.add(hitText);
+
+            hitText.alpha = 1;
+            hitText.text = Std.string(event.hitDiff) + 'ms';
+            switch (event.judgement)
+            {
+                case 'sick':
+                    hitText.color = 0xFF00FF00;
+                case 'good':
+                    hitText.color = 0xFF44AA44;
+                case 'bad':
+                    hitText.color = 0xFFFF4400;
+                case 'shit':
+                    hitText.color = 0xFFFF0000;
+            }
+            textTween = FlxTween.tween(hitText, {alpha: 0}, 0.5, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){hitText.destroy();}});
+        }
+    }
+}
