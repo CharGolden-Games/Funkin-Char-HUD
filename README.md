@@ -41,7 +41,7 @@ Changing `"useVSCharColors": true,` to `"useVSCharColors": false,` will revert t
 
 Well it's pretty simple, there are 2 ways:
 
-- put a file under "_merge/data/vsCharHud/settings.json" and use the following template to add an entry
+- put a file under `_merge/data/vsCharHud/settings.json` and use the following template to add an entry
 ```json
 {
        "colors": [
