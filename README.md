@@ -14,7 +14,7 @@
 ## Configuration
 
 You can edit the settings of the mod by going into `mods/<folderOfHUDMod>/data/vsCharHud/settings.json` and changing the values there!
-you can always grab a fresh new copy <a href="https://raw.githubusercontent.com/CharGolden-Games/Funkin-Char-HUD/c0156ed4dab06afefc953b5d7461499dc56c0cc5/data/vsCharHud/settings.json?token=GHSAT0AAAAAAC6B6ETYVFAQMIMEJHFSNVLSZ7LL7OQ" download="settings.json"> here!</a> if something breaks or you accidentally deleted the settings file.
+you can always grab a fresh new copy [here!]("data/vsCharHud/settings.json") if something breaks or you accidentally deleted the settings file.
 
 ### Score Text - VS Char HUD | Psych HUD
 
