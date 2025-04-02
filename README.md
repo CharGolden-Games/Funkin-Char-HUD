@@ -5,7 +5,7 @@
 ### This mod adds the following:
 
 - Time Bar
-- Healthbar Colors ***(Not implemented yet!)***
+- Healthbar Colors
 
 ### And changes the following:
 
