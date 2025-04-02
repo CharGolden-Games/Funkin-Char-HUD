@@ -1,4 +1,6 @@
 {
+    "note": "This JSON is my equivelent of a hardcoded list, just add the following to your char JSON and swap the value with the HEX color value you want i.e Char's 0xFFFF8800 :3",
+    "healthBarColor": "0xFF000000",
     "colors": [
         {
             "affects": [
@@ -6,10 +8,88 @@
                 "bf-car",
                 "bf-christmas",
                 "bf-dark",
-                "bf-holding-gf",
+                "bf-holding-gf"
+            ],
+            "color": "0xFF31B1D1"
+        },
+        {
+            "affects": [
+                "gf"
+            ],
+            "color": "0xFFA5004D"
+        },
+        {
+            "affects": [
+                "dad",
+                "parents",
+                "parents-christmas"
+            ],
+            "color": "0xFFAF66CE"
+        },
+        {
+            "affects": [
+                "pico",
+                "pico-playable",
+                "pico-dark",
+                "pico-christmas",
+                "pico-holding-nene",
+                "pico-blazin"
+            ],
+            "color": "0xFFB7D855"
+        },
+        {
+            "affects": [
+                "mom",
+                "mom-car"
+            ],
+            "color": "0xFFD8558E"
+        },
+        {
+            "affects": [
                 "bf-pixel"
             ],
-            "color": "0xFF31b1d1"
+            "color": "0xFF7CD4F4"
+        },
+        {
+            "affects": [
+                "pico-pixel"
+            ],
+            "color": "0xFF8CFC5C"
+        },
+        {
+            "affects": [
+                "senpai",
+                "senpai-angry"
+            ],
+            "color": "0xFFFCAC6C"
+        },
+        {
+            "affects": [
+                "spirit"
+            ],
+            "color": "0xFFFC3C6C"
+        },
+        {
+            "affects": [
+                "darnell",
+                "darnell-blazin"
+            ],
+            "color": "0xFF745DB3"
+        },
+        {
+            "affects": [
+                "tankman",
+                "tankman-atlas",
+                "tankman-bloody"
+            ],
+            "color": "0xFFFFFFFF"
+        },
+        {
+            "affects": [
+                "monster",
+                "monster-christmas"
+            ],
+            "color": "0xFFF2F76E"
         }
     ]
 }

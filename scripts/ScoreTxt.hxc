@@ -22,11 +22,6 @@ import funkin.Conductor;
 
 import StringTools;
 
-typedef HBColor = {
-    var affects:Array<String>;
-    var color:String;
-}
-
 class ScoreTxt extends Module
 {
     var game:PlayState = null;
@@ -252,13 +247,9 @@ class ScoreTxt extends Module
             }
             if (!simpleRatings)
             {
-                if (event.hitDiff > 0 && totalHit <= totalPlayed)
+                if (event.hitDiff > 0 && totalPlayed != 0 && totalHit != 0)
                 {
-                    ratingMod((-event.hitDiff * 0.01));
-                }
-                else if (totalHit < totalPlayed)
-                {
-                    ratingMod((-event.hitDiff * 0.01));
+                    ratingMod(event.hitDiff * -0.01);
                 }
             }
             updateScore();
@@ -281,53 +272,6 @@ class ScoreTxt extends Module
         {
             totalHit += change;
         }
-    }
-
-    function startsWith(s:String, start:String):String
-    {
-        return StringTools.startsWith(s, start);
-    }
-
-    var hbColors:Array<String> = [];
-    function merge_ColorJson():Array<Int>
-    {
-        hbColors = [];
-        if (Assets.exists('assets/data/vsCharHud/colors.json'))
-        {
-            var json:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/colors.json'));
-            var colors:Array<Array<HBColor>> = [];
-            for (key in Reflect.fields(json))
-            {
-                if (startsWith(key, 'colors'))
-                {
-                    colors.push(Reflect.field(key));
-                }
-            }
-
-            for (modColors in colors)
-            {
-                for (colorMap in modColors)
-                    {
-                        hbColors.push({affects: colorMap.affects, color: colorMap.color});
-                    }
-            }
-        }
-    }
-
-    function getColor(charJson:String, isPlayer:Bool = false):Int
-    {
-        for (color in hbColors)
-        {
-            for (affects in color.affects)
-            {
-                if (affects == charJson)
-                {
-                    return Std.int(color.color);
-                }
-            }
-        }
-
-        return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
     }
     
     public function onNoteMiss(event:NoteScriptEvent)

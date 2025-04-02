@@ -34,3 +34,35 @@ By default the Time Bar has these colors:
 ![](docs/timeBar.png)
 
 Changing `"useVSCharColors": true,` to `"useVSCharColors": false,` will revert the Time Bar to a standard Black to White color scheme.
+
+### Colored Healthbar - Custom Characters
+
+**Hey char, it's cool that you added them but HOW DO I USE IT WITH MY CHARACTERS?!**
+
+Well it's pretty simple, there are 2 ways:
+
+- put a file under "_merge/data/vsCharHud/settings.json" and use the following template to add an entry
+```json
+{
+       "colors": [
+              {
+                     "affects": [
+                            "Your",
+                            "Characters",
+                            "Here"
+                     ],
+                     "color": "0xFF8800"
+              },
+              {
+                     "affects": [
+                            "Second Entry"
+                     ],
+                     "color": "0xFF884422"
+              }
+       ]
+}
+```
+
+- Add an entry to your character JSON
+in your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
+`"healthBarColor": "0xFF000000",`

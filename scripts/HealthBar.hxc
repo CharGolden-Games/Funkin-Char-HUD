@@ -1,0 +1,90 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.util.FlxStringUtil;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+
+import StringTools;
+
+typedef HBColor = {
+    var affects:Array<String>;
+    var color:String;
+}
+
+class HealthBar extends Module
+{
+    var hbColors:Array<HBColor> = [];
+    var game:PlayState;
+    public function new()
+    {
+        super('Healthbar Colors - Char HUD');
+    }
+
+    public function onCountdownStart(event:CountdownScriptEvent)
+    {
+        game = PlayState.instance;
+
+        merge_ColorJson();
+        
+        var charID_D:String = '';
+        var charID_B:String = '';
+        if (game.currentStage.getDad() != null)
+            charID_D = game.currentStage.getDad().characterId;
+        if (game.currentStage.getBoyfriend() != null)
+            charID_B = game.currentStage.getBoyfriend().characterId;
+        
+        game.healthBar.createFilledBar(getColor(charID_D, false), getColor(charID_B, true));
+        game.healthBar.updateBar();
+    }
+
+    function merge_ColorJson():Array<Int>
+    {
+        hbColors = [];
+        if (Assets.exists('assets/data/vsCharHud/colors.json'))
+        {
+            var json:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/colors.json'));
+            hbColors = json.colors;
+        }
+
+        return hbColors;
+    }
+
+    function getColor(charJson:String, isPlayer:Bool = false):Int
+    {
+        var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
+        if (json.healthBarColor != null)
+        {
+            return json.healthBarColor;
+        }
+
+        // The following happens if instead you have a character that's in the json.
+        for (color in hbColors)
+        {
+            for (affects in color.affects)
+            {
+                if (affects == charJson)
+                {
+                    return Std.int(color.color);
+                }
+            }
+        }
+
+        return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+    }
+}
