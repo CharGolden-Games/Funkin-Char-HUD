@@ -43,6 +43,7 @@ class ScoreTxt extends Module
     // Settings
     var vsCharHUD:Bool = false;
     var simpleRatings:Bool = false;
+    var includeTimings:Bool = false;
 
     // Rating Shiz
     var ratingStuff:Array<Array<Dynamic>> = [
@@ -170,6 +171,7 @@ class ScoreTxt extends Module
                 trace(settings);
                 vsCharHUD = settings.vsCharHUD;
                 simpleRatings = settings.simpleRatings;
+                includeTimings = settings.includeTiming;
             }
             catch(e:Dynamic)
             {
@@ -247,9 +249,12 @@ class ScoreTxt extends Module
             }
             if (!simpleRatings)
             {
-                if (event.hitDiff > 0 && totalPlayed != 0 && totalHit != 0)
+                if (includeTimings)
                 {
-                    ratingMod(event.hitDiff * -0.01);
+                    if (event.hitDiff > 2 && totalPlayed != 0 && totalHit != 0)
+                    {
+                        ratingMod((event.hitDiff - 2) * -0.01);
+                    }
                 }
             }
             updateScore();

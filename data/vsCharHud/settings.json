@@ -1,5 +1,6 @@
 {
     "useVSCharColors": true,
     "vsCharHUD": true,
-    "simpleRatings": false
+    "simpleRatings": false,
+    "includeTiming": true
 }

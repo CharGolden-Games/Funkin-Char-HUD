@@ -66,3 +66,7 @@ Well it's pretty simple, there are 2 ways:
 - Add an entry to your character JSON
 in your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
 `"healthBarColor": "0xFF000000",`
+
+### Accuracy - Include Timing
+
+By default, the timing of your note hit is taken into account when doing accuracy calculations, if you want a more psych-like accuracy set `"includeTiming": true` to `"includeTiming": false`
