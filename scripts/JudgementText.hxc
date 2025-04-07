@@ -1,0 +1,153 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+
+class JudgementText extends Module
+{
+    var game:PlayState = null;
+
+    public function new()
+    {
+        super('Judgement Text - Char HUD');
+    }
+
+    var judgeText:FlxText;
+    var textTween:FlxTween;
+
+    // Score shiz
+    var totalHit:Int = 0;
+    var totalPlayed:Int = 0;
+    var sicks:Int = 0;
+    var goods:Int = 0;
+    var bads:Int = 0;
+    var shits:Int = 0;
+
+    
+    // Settings
+    var simpleRatings:Bool = false;
+
+    public function onCountdownStart(event:CountdownScriptEvent)
+    {
+        checkSettings();
+        if (textTween != null)
+        {
+            textTween.cancel();
+        }
+        totalHit = 0;
+        totalPlayed = 0;
+        sicks = 0;
+        goods = 0;
+        bads = 0;
+        shits = 0;
+        if (judgeText != null)
+        {
+            judgeText.destroy();
+            judgeText = null;
+        }
+        game = PlayState.instance;
+    }
+
+    function tallyUpScore():String
+    {
+        var accuracy = totalHit / totalPlayed;
+        
+        return Std.string(Math.floor(Math.floor((accuracy * 100) * 100) / 100));
+    }
+
+    function updateText()
+    {
+        judgeText.text = 'Sicks: ' + Std.string(sicks)
+        + '\nGoods: '+ Std.string(goods)
+        + '\nBads: ' + Std.string(bads)
+        + '\nShits: ' + Std.string(shits);
+        if (!simpleRatings)
+        {
+            judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
+        }
+    }
+
+    public function onSongStart(event:ScriptEvent)
+    {
+        judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0');
+        if (!simpleRatings)
+        {
+            judgeText.text += '\nResult Rating: N/A';
+        }
+        judgeText.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        judgeText.borderSize = 2;
+        judgeText.cameras = [game.camHUD];
+        game.add(judgeText);
+        judgeText.screenCenter(0x10);
+        judgeText.alpha = 0;
+
+        textTween = FlxTween.tween(judgeText, {alpha: 1}, 0.5, {ease: FlxEase.linear});
+    }
+
+    public function onNoteHit(event:HitNoteScriptEvent)
+    {
+        if (event.judgement != 'perfect')
+        {
+            totalPlayed++;
+            if (event.judgement == 'sick' || event.judgement == 'good')
+            {
+                totalHit++;
+            }
+            switch (event.judgement)
+            {
+                case 'sick':
+                    sicks++;
+                case 'good':
+                    goods++;
+                case 'bad':
+                    bads++;
+                case 'shit':
+                    shits++;
+            }
+            updateText();
+        }
+    }
+
+    
+    function checkSettings()
+        {
+            if (!Assets.exists('assets/data/vsCharHud/settings.json'))
+            {
+                simpleRatings = false;
+            }
+            else
+            {
+                try
+                {
+                    var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+    
+                    simpleRatings = settings.simpleRatings;
+                }
+                catch(e:Dynamic)
+                {
+                    trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                    simpleRatings = false;
+                }
+            }
+        }
+
+    public function onNoteMiss(event:NoteScriptEvent)
+    {
+        totalPlayed++;
+        updateText();
+    }
+}

@@ -1,6 +1,5 @@
 // Flixel
 import flixel.text.FlxText;
-import flixel.text.FlxText;
 import flixel.text.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -161,6 +160,7 @@ class ScoreTxt extends Module
         {
             vsCharHUD = false;
             simpleRatings = false;
+            includeTimings = false;
         }
         else
         {
@@ -179,6 +179,7 @@ class ScoreTxt extends Module
 
                 vsCharHUD = false;
                 simpleRatings = false;
+                includeTimings = false;
             }
         }
     }
@@ -230,6 +231,8 @@ class ScoreTxt extends Module
 
     public function onNoteHit(event:HitNoteScriptEvent)
     {
+        var hitDiff = event.hitDiff;
+        var checkDiff = hitDiff < 0 ? (-hitDiff) + 2 : hitDiff - 2;
         if (event.judgement != 'perfect')
         {
             totalPlayed++;
@@ -241,19 +244,22 @@ class ScoreTxt extends Module
                 case 'good':
                     goods++;
                     ratingMod(0.67);
+                    checkDiff = 0;
                 case 'bad':
                     bads++;
                     ratingMod(0.34, true);
+                    checkDiff = 0;
                 case 'shit':
                     shits++;
+                    checkDiff = 0;
             }
             if (!simpleRatings)
             {
                 if (includeTimings)
                 {
-                    if (event.hitDiff > 2 && totalPlayed != 0 && totalHit != 0)
+                    if (checkDiff > 0 && totalPlayed != 0 && totalHit != 0)
                     {
-                        ratingMod((event.hitDiff - 2) * -0.01);
+                        ratingMod(-checkDiff * 0.005);
                     }
                 }
             }
