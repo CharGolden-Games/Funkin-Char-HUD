@@ -70,13 +70,16 @@ class JudgementText extends Module
 
     function updateText()
     {
-        judgeText.text = 'Sicks: ' + Std.string(sicks)
-        + '\nGoods: '+ Std.string(goods)
-        + '\nBads: ' + Std.string(bads)
-        + '\nShits: ' + Std.string(shits);
-        if (!simpleRatings)
+        if (judgeText != null)
         {
-            judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
+            judgeText.text = 'Sicks: ' + Std.string(sicks)
+            + '\nGoods: '+ Std.string(goods)
+            + '\nBads: ' + Std.string(bads)
+            + '\nShits: ' + Std.string(shits);
+            if (!simpleRatings)
+            {
+                judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
+            }
         }
     }
 
