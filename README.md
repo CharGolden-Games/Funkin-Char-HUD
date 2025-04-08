@@ -42,6 +42,7 @@ Changing `"useVSCharColors": true,` to `"useVSCharColors": false,` will revert t
 Well it's pretty simple, there are 3 ways:
 
 - put a file under `_merge/data/vsCharHud/colors.json`
+
 use the following template to add an entry (Color code MUST start with `0xFF`):
 ```json
 {
@@ -65,6 +66,7 @@ use the following template to add an entry (Color code MUST start with `0xFF`):
 ```
 
 - Add an entry to your character JSON (Hex Color Code)
+
 in your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
 
 > [!NOTE]
@@ -73,6 +75,7 @@ in your character file add this after the name value, replacing `0xFF000000` wit
 `"healthBarColor": "0xFF000000",`
 
 - Add an entry to your character JSON (RGB Array)
+
 in your character file add this after the name value, add an array like the following:
 
 `"healthBarColor": [255, 136 0],`
