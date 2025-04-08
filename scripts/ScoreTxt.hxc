@@ -167,8 +167,7 @@ class ScoreTxt extends Module
             try
             {
                 var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
-
-                trace(settings);
+                
                 vsCharHUD = settings.vsCharHUD;
                 simpleRatings = settings.simpleRatings;
                 includeTimings = settings.includeTiming;

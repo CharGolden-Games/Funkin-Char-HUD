@@ -39,9 +39,10 @@ Changing `"useVSCharColors": true,` to `"useVSCharColors": false,` will revert t
 
 **Hey char, it's cool that you added them but HOW DO I USE IT WITH MY CHARACTERS?!**
 
-Well it's pretty simple, there are 2 ways:
+Well it's pretty simple, there are 3 ways:
 
-- put a file under `_merge/data/vsCharHud/colors.json` and use the following template to add an entry
+- put a file under `_merge/data/vsCharHud/colors.json`
+use the following template to add an entry (Color code MUST start with `0xFF`):
 ```json
 {
        "colors": [
@@ -51,7 +52,7 @@ Well it's pretty simple, there are 2 ways:
                             "Characters",
                             "Here"
                      ],
-                     "color": "0xFF8800"
+                     "color": "0xFFFF8800"
               },
               {
                      "affects": [
@@ -63,9 +64,19 @@ Well it's pretty simple, there are 2 ways:
 }
 ```
 
-- Add an entry to your character JSON
+- Add an entry to your character JSON (Hex Color Code)
 in your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
+
+> [!NOTE]
+> The color code MUST start with 0xFF
+
 `"healthBarColor": "0xFF000000",`
+
+- Add an entry to your character JSON (RGB Array)
+in your character file add this after the name value, add an array like the following:
+
+`"healthBarColor": [255, 136 0],`
+
 
 ### Accuracy - Include Timing
 

@@ -65,26 +65,49 @@ class HealthBar extends Module
         return hbColors;
     }
 
+    function hexRGB(r:Int, g:Int, b:Int):Null<Int>
+    {
+        var hexCodes:String = "0123456789ABCDEF";
+        var hexString:String = '0x';
+
+        hexString += 'FF'; // Colored healthbar needs alpha value.
+        hexString += hexCodes.charAt(r/16) + hexCodes.charAt(r%16);
+        hexString += hexCodes.charAt(g/16) + hexCodes.charAt(g%16);
+        hexString += hexCodes.charAt(b/16) + hexCodes.charAt(b%16);
+
+        //trace(hexString);
+        return Std.parseInt(hexString);
+    }
+
     function getColor(charJson:String, isPlayer:Bool = false):Int
     {
         var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
-        if (json.healthBarColor != null)
-        {
-            return json.healthBarColor;
-        }
 
-        // The following happens if instead you have a character that's in the json.
-        for (color in hbColors)
+        var color:Null<Array<Int>> = json.healthBarColor;
+        if (color == null)
         {
-            for (affects in color.affects)
+            // The following happens if instead you have a character that's in the json.
+            for (color in hbColors)
             {
-                if (affects == charJson)
+                for (affects in color.affects)
                 {
-                    return Std.int(color.color);
+                    if (affects == charJson)
+                    {
+                        return Std.int(color.color);
+                    }
                 }
             }
-        }
 
-        return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+            return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+        }
+        else
+        {
+            if (Std.parseInt(Std.string(json.healthBarColor)) != null)
+            {
+                return Std.parseInt(Std.string(json.healthBarColor));
+            }
+
+            return hexRGB(color[0], color[1], color[2]);
+        }
     }
 }
