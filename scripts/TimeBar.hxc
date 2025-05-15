@@ -18,13 +18,12 @@ import haxe.Json;
 import openfl.utils.Assets;
 
 // Funkin
-import funkin.ui.transition.StickerSubState;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
+import funkin.play.PauseSubState;
 import funkin.Conductor;
 import funkin.graphics.FunkinSprite;
 import funkin.Paths;
-import funkin.play.ResultState;
 
 class TimeBar extends Module
 {
@@ -39,6 +38,33 @@ class TimeBar extends Module
     var timeBar:FlxBar;
     var timeBarBG:FunkinSprite;
     var timeTxt:FlxText;
+
+    function killShit()
+    {
+        try {
+            for (tween in timeTweens)
+            {
+                if (tween != null)
+                    tween.cancel();
+            }
+
+            if (timeBar != null)
+            {
+                timeBar.destroy();
+                timeBar = null;
+
+                timeBarBG.destroy();
+                timeBarBG = null;
+
+                timeTxt.destroy();
+                timeTxt = null;
+            }
+        }
+        catch(e:Dynamic)
+        {
+            return;
+        }
+    }
     var timePercent:Float = 0;
     var vsCharColors:Bool = false;
 
@@ -131,12 +157,9 @@ class TimeBar extends Module
     {
         super.onSubStateOpenBegin(event);
         
-        if (Std.isOfType(event.targetState, StickerSubState) || Std.isOfType(event.targetState, ResultState))
+        if (!Std.isOfType(event.targetState, PauseSubState))
         {
-            game = null;
-            timeBar = null;
-            timeBarBG = null;
-            timeTxt = null;
+            killShit();
         }
     }
 

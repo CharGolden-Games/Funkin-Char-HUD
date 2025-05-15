@@ -18,6 +18,7 @@ import funkin.Highscore;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
 import funkin.Conductor;
+import funkin.play.PauseSubState;
 
 import StringTools;
 
@@ -26,6 +27,26 @@ class ScoreTxt extends Module
     var game:PlayState = null;
     var scoreTxtTween:FlxTween;
     var scoreTxt:FlxText;
+
+    function killShit()
+    {
+        try {
+            if (scoreTxtTween != null)
+            {
+                scoreTxtTween.cancel();
+            }
+
+            if (scoreText != null)
+            {
+                scoreTxt.destroy();
+                scoreTxt = null;
+            }
+        }
+        catch (e:Dynamic)
+        {
+            return;
+        }
+    }
 
     // Score Variables
     var sicks:Int = 0;
@@ -120,38 +141,41 @@ class ScoreTxt extends Module
 
     function updateScore()
     {
-        updateAccuracy();
-        updateFC();
-        updateRating();
-
-        var addition:String = '';
-        if (!['Bruh', 'Get better nerd.', 'Are you even hitting the notes?', 'COORDINATION, HAVE YOU HEARD OF IT?'].contains(rating))
+        if (scoreTxt != null)
         {
-            if ((misses + bads + shits) > 0)
-                addition = ' (Actually you kinda fucking suck.)';
-            if (fcString == 'Clear')
-                addition = ' (Actually you fucking REEK!)';
-        }
-        var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(game.songScore, false) 
-        + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
-        + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
+            updateAccuracy();
+            updateFC();
+            updateRating();
 
-        if (!vsCharHUD)
-        {
-            scoreString = 'Score: ' + Std.string(game.songScore) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
-        }
-        scoreTxt.text = scoreString;
-
-        if(scoreTxtTween != null) {
-            scoreTxtTween.cancel();
-        }
-        scoreTxt.scale.x = 1.075;
-        scoreTxt.scale.y = 1.075;
-        scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
-            onComplete: function(twn:FlxTween) {
-                scoreTxtTween = null;
+            var addition:String = '';
+            if (!['Bruh', 'Get better nerd.', 'Are you even hitting the notes?', 'COORDINATION, HAVE YOU HEARD OF IT?'].contains(rating))
+            {
+                if ((misses + bads + shits) > 0)
+                    addition = ' (Actually you kinda fucking suck.)';
+                if (fcString == 'Clear')
+                    addition = ' (Actually you fucking REEK!)';
             }
-        });
+            var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(game.songScore, false) 
+            + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
+            + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
+
+            if (!vsCharHUD)
+            {
+                scoreString = 'Score: ' + Std.string(game.songScore) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
+            }
+            scoreTxt.text = scoreString;
+
+            if(scoreTxtTween != null) {
+                scoreTxtTween.cancel();
+            }
+            scoreTxt.scale.x = 1.075;
+            scoreTxt.scale.y = 1.075;
+            scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+                onComplete: function(twn:FlxTween) {
+                    scoreTxtTween = null;
+                }
+            });
+        }
     }
 
     function checkSettings()
@@ -289,5 +313,15 @@ class ScoreTxt extends Module
         totalPlayed++;
         misses++;
         updateScore();
+    }
+    
+    public function onSubStateOpenBegin(event):Void 
+    {
+        super.onSubStateOpenBegin(event);
+        
+        if (!Std.isOfType(event.targetState, PauseSubState))
+        {
+            killShit();
+        }
     }
 }

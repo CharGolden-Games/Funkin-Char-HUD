@@ -15,6 +15,7 @@ import funkin.Paths;
 import funkin.Highscore;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
+import funkin.play.PauseSubState;
 
 class JudgementText extends Module
 {
@@ -27,6 +28,24 @@ class JudgementText extends Module
 
     var judgeText:FlxText;
     var textTween:FlxTween;
+
+    function killShit()
+    {
+        try {
+            if (textTween != null)
+                textTween.cancel();
+
+            if (judgeText != null)
+            {
+                judgeText.destroy();
+                judgeText = null;
+            }
+        }
+        catch(e:Dynamic)
+        {
+            return;
+        }
+    }
 
     // Score shiz
     var totalHit:Int = 0;
@@ -152,5 +171,15 @@ class JudgementText extends Module
     {
         totalPlayed++;
         updateText();
+    }
+    
+    public function onSubStateOpenBegin(event):Void 
+    {
+        super.onSubStateOpenBegin(event);
+        
+        if (!Std.isOfType(event.targetState, PauseSubState))
+        {
+            killShit();
+        }
     }
 }
