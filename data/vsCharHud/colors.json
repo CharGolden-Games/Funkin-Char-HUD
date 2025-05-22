@@ -65,6 +65,14 @@
         },
         {
             "affects": [
+                "spooky",
+                "spooky-dark",
+                "spooky-playable"
+            ],
+            "color": "0xFFD57E00"
+        },
+        {
+            "affects": [
                 "spirit"
             ],
             "color": "0xFFFC3C6C"
