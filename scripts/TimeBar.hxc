@@ -38,6 +38,7 @@ class TimeBar extends Module
     var timeBar:FlxBar;
     var timeBarBG:FunkinSprite;
     var timeTxt:FlxText;
+    var doFading:Bool = false;
 
     function killShit()
     {
@@ -72,9 +73,23 @@ class TimeBar extends Module
     {
         checkSettings();
         game = PlayState.instance;
+        if (game.isInCutscene) return;
+
+        if (timeBar != null)
+        {
+            timeBar.destroy();
+            timeBar = null;
+
+            timeBarBG.destroy();
+            timeBarBG = null;
+
+            timeTxt.destroy();
+            timeTxt = null;
+        }
+
         timeBarBG = FunkinSprite.create(0,10,'timeBar');
         timeBarBG.screenCenter(0x01);
-        timeBarBG.alpha = 0;
+        timeBarBG.alpha = doFading ? 0 : 1;
 
         timeBar = new FlxBar(timeBarBG.x + 4, timeBarBG.y + 4, FlxBarFillDirection.LEFT_TO_RIGHT, Std.int(timeBarBG.width - 8), Std.int(timeBarBG.height - 8), this, 'timePercent', 0, 1);
         timeBar.scrollFactor.set();
@@ -84,13 +99,13 @@ class TimeBar extends Module
             colors = [0xFFEE6285, 0xFFFFAA44];
         }
         timeBar.createFilledBar(colors[0], colors[1]);
-        timeBar.alpha = 0;
+        timeBar.alpha = doFading ? 0 : 1;
 
         timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', 25);
         timeTxt.setFormat(Paths.font('vcr.ttf'), 25, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         timeTxt.scrollFactor.set();
         timeTxt.zIndex = 999;
-        timeTxt.alpha = 0;
+        timeTxt.alpha = doFading ? 0 : 1;
         timeTxt.borderSize = 2;
         
         game.add(timeBarBG);
@@ -107,6 +122,7 @@ class TimeBar extends Module
         if (!Assets.exists('assets/data/vsCharHud/settings.json'))
         {
             vsCharColors = false;
+            doFading = false;
         }
         else
         {
@@ -115,12 +131,14 @@ class TimeBar extends Module
                 var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
 
                 vsCharColors = settings.useVSCharColors;
+                doFading = settings.doFading;
             }
             catch(e:Dynamic)
             {
                 trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
 
                 vsCharColors = false;
+                doFading = false;
             }
         }
     }
@@ -128,6 +146,7 @@ class TimeBar extends Module
     var timeTweens:Array<FlxTween> = [];
     public function onSongStart(event:ScriptEvent)
     {
+        if (!doFading) return;
 		timeTweens.push(FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
 		timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
 		timeTweens.push(FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
@@ -171,8 +190,11 @@ class TimeBar extends Module
             if (tween != null)
                 tween.cancel();
         }
-        timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
-        timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
-        timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        if (timeBar != null && doFading)
+        {
+            timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        }
     }
 }

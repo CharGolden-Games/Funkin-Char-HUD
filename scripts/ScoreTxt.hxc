@@ -64,6 +64,7 @@ class ScoreTxt extends Module
     var vsCharHUD:Bool = false;
     var simpleRatings:Bool = false;
     var includeTimings:Bool = false;
+    var doFading:Bool = false;
 
     // Rating Shiz
     var ratingStuff:Array<Array<Dynamic>> = [
@@ -96,15 +97,18 @@ class ScoreTxt extends Module
         super('ScoreTXT - Char HUD');
     }
 
+    var scoreString:String;
+    var scoreAlphaTween:FlxTween;
     public function onCountdownStart(event:CountdownScriptEvent) 
     {
         checkSettings();
         game = PlayState.instance;
 
+        if (game.isInCutscene) return;
+
         game.scoreText.visible = false;
 
-        if (scoreTxt != null)
-            scoreTxt.destroy();
+        if (scoreTxt != null) scoreTxt.destroy();
 
         sicks = 0;
         goods = 0;
@@ -116,8 +120,9 @@ class ScoreTxt extends Module
         misses = 0;
         fcString = 'N/A';
         rating = '';
+        scoreString = 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET';
 
-        var scoreString:String = 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET';
+        
         if (!vsCharHUD)
         {
             scoreString = 'Score: 0 | Misses: 0 | Rating: ?';
@@ -128,15 +133,21 @@ class ScoreTxt extends Module
         if (!vsCharHUD)
             scoreTxt.size = 20;
         scoreTxt.scrollFactor.set();
-        scoreTxt.zIndex = 1000;
+        scoreTxt.zIndex = 1002;
         game.add(scoreTxt);
         scoreTxt.cameras = [game.camHUD];
+        scoreTxt.alpha = doFading ? 0 : 1;
         
         // Now we move the damn healthbar out of the way.
         game.healthBar.y = 642;
         game.healthBarBG.y = 638;
         game.iconP1.y += 567;
         game.iconP2.y += 567;
+    }
+
+    public function onSongStart(event:ScriptEvent)
+    {
+        if (doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 1}, 0.5, {ease: FlxEase.linear});
     }
 
     function updateScore()
@@ -195,6 +206,7 @@ class ScoreTxt extends Module
                 vsCharHUD = settings.vsCharHUD;
                 simpleRatings = settings.simpleRatings;
                 includeTimings = settings.includeTiming;
+                doFading = settings.doFading;
             }
             catch(e:Dynamic)
             {
@@ -203,6 +215,7 @@ class ScoreTxt extends Module
                 vsCharHUD = false;
                 simpleRatings = false;
                 includeTimings = false;
+                doFading = false;
             }
         }
     }
@@ -323,5 +336,12 @@ class ScoreTxt extends Module
         {
             killShit();
         }
+    }
+
+    public function onSongRetry(event:ScriptEvent)
+    {
+        //scoreTxt.text = scoreString = vsCharHUD ? 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET' : 'Score: 0 | Misses: 0 | Rating: ?';
+        if (scoreAlphaTween != null) scoreAlphaTween = null;
+        if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
     }
 }

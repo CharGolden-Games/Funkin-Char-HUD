@@ -54,14 +54,19 @@ class JudgementText extends Module
     var goods:Int = 0;
     var bads:Int = 0;
     var shits:Int = 0;
+    var maxCombo:Int = 0;
 
     
     // Settings
     var simpleRatings:Bool = false;
+    var doFading:Bool = false;
 
     public function onCountdownStart(event:CountdownScriptEvent)
     {
         checkSettings();
+        game = PlayState.instance;
+        if (game.isInCutscene) return;
+        
         if (textTween != null)
         {
             textTween.cancel();
@@ -72,12 +77,34 @@ class JudgementText extends Module
         goods = 0;
         bads = 0;
         shits = 0;
+        maxCombo = 0;
         if (judgeText != null)
         {
             judgeText.destroy();
             judgeText = null;
         }
-        game = PlayState.instance;
+                
+        judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0\nMax Combo: 0');
+        if (!simpleRatings)
+        {
+            judgeText.text += '\nResult Rating: N/A';
+        }
+        judgeText.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        judgeText.borderSize = 2;
+        judgeText.cameras = [game.camHUD];
+        game.add(judgeText);
+        judgeText.screenCenter(0x10);
+        judgeText.alpha = doFading ? 0 : 1;
+    }
+
+    public function onUpdate(event:UpdateScriptEvent)
+    {
+        if (game == null) return;
+        if (Highscore.tallies.combo > maxCombo)
+        {
+            maxCombo = Highscore.tallies.combo;
+            updateText();
+        }
     }
 
     function tallyUpScore():String
@@ -94,7 +121,8 @@ class JudgementText extends Module
             judgeText.text = 'Sicks: ' + Std.string(sicks)
             + '\nGoods: '+ Std.string(goods)
             + '\nBads: ' + Std.string(bads)
-            + '\nShits: ' + Std.string(shits);
+            + '\nShits: ' + Std.string(shits)
+            + '\nMax Combo: ' + Std.string(maxCombo);
             if (!simpleRatings)
             {
                 judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
@@ -104,19 +132,7 @@ class JudgementText extends Module
 
     public function onSongStart(event:ScriptEvent)
     {
-        judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0');
-        if (!simpleRatings)
-        {
-            judgeText.text += '\nResult Rating: N/A';
-        }
-        judgeText.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
-        judgeText.borderSize = 2;
-        judgeText.cameras = [game.camHUD];
-        game.add(judgeText);
-        judgeText.screenCenter(0x10);
-        judgeText.alpha = 0;
-
-        textTween = FlxTween.tween(judgeText, {alpha: 1}, 0.5, {ease: FlxEase.linear});
+        if (doFading) textTween = FlxTween.tween(judgeText, {alpha: 1}, 0.5, {ease: FlxEase.linear});
     }
 
     public function onNoteHit(event:HitNoteScriptEvent)
@@ -143,12 +159,12 @@ class JudgementText extends Module
         }
     }
 
-    
     function checkSettings()
         {
             if (!Assets.exists('assets/data/vsCharHud/settings.json'))
             {
                 simpleRatings = false;
+                doFading = false;
             }
             else
             {
@@ -157,12 +173,14 @@ class JudgementText extends Module
                     var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
     
                     simpleRatings = settings.simpleRatings;
+                    doFading = settings.doFading;
                 }
                 catch(e:Dynamic)
                 {
                     trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
     
                     simpleRatings = false;
+                    doFading = false;
                 }
             }
         }
@@ -181,5 +199,14 @@ class JudgementText extends Module
         {
             killShit();
         }
+    }
+
+    var tweenOut:FlxTween;
+    public function onSongRetry(event:ScriptEvent)
+    {
+        game = null;
+        if (textTween != null) textTween.cancel();
+        if (tweenOut != null) tweenOut.cancel();
+        if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});
     }
 }

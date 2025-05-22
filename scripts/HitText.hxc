@@ -72,4 +72,13 @@ class HitText extends Module
             textTween = FlxTween.tween(hitText, {alpha: 0}, 0.5, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){hitText.destroy();}});
         }
     }
+
+    public function onSongRetry(event:ScriptEvent)
+    {
+        if (textTween != null)
+            textTween.cancel();
+
+        if (hitText != null)
+            hitText.destroy();
+    }
 }
