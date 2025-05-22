@@ -15,7 +15,7 @@ import funkin.Paths;
 import funkin.Highscore;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
-import funkin.play.PauseSubState;
+import funkin.ui.freeplay.FreeplayState;
 
 class JudgementText extends Module
 {
@@ -195,7 +195,7 @@ class JudgementText extends Module
     {
         super.onSubStateOpenBegin(event);
         
-        if (!Std.isOfType(event.targetState, PauseSubState))
+        if (Std.isOfType(event.targetState, FreeplayState))
         {
             killShit();
         }

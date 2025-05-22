@@ -20,7 +20,7 @@ import openfl.utils.Assets;
 // Funkin
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
-import funkin.play.PauseSubState;
+import funkin.ui.freeplay.FreeplayState;
 import funkin.Conductor;
 import funkin.graphics.FunkinSprite;
 import funkin.Paths;
@@ -176,7 +176,7 @@ class TimeBar extends Module
     {
         super.onSubStateOpenBegin(event);
         
-        if (!Std.isOfType(event.targetState, PauseSubState))
+        if (Std.isOfType(event.targetState, FreeplayState))
         {
             killShit();
         }
