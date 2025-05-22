@@ -54,6 +54,7 @@ class JudgementText extends Module
     var goods:Int = 0;
     var bads:Int = 0;
     var shits:Int = 0;
+    var misses:Int = 0;
     var maxCombo:Int = 0;
 
     
@@ -77,6 +78,7 @@ class JudgementText extends Module
         goods = 0;
         bads = 0;
         shits = 0;
+        misses = 0;
         maxCombo = 0;
         if (judgeText != null)
         {
@@ -126,6 +128,8 @@ class JudgementText extends Module
             if (!simpleRatings)
             {
                 judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
+                if (goods == 0 && bads == 0 && shits == 0) judgeText.text += ' (Gold Perfect)';
+                else if (bads == 0 && shits == 0 && misses == 0) judgeText.text += ' (Perfect)';
             }
         }
     }
@@ -188,6 +192,7 @@ class JudgementText extends Module
     public function onNoteMiss(event:NoteScriptEvent)
     {
         totalPlayed++;
+        misses++;
         updateText();
     }
     
