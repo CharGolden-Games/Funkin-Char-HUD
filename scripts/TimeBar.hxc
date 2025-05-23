@@ -10,6 +10,7 @@ import flixel.FlxCamera;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.FlxG;
+import flixel.FlxBasic;
 
 // Haxe
 import haxe.Json;
@@ -65,6 +66,7 @@ class TimeBar extends Module
         {
             return;
         }
+        if (game != null) game == null;
     }
     var timePercent:Float = 0;
     var vsCharColors:Bool = false;
@@ -108,13 +110,36 @@ class TimeBar extends Module
         timeTxt.alpha = doFading ? 0 : 1;
         timeTxt.borderSize = 2;
         
-        game.add(timeBarBG);
-        game.add(timeBar);
-        game.add(timeTxt);
+        add(timeBarBG);
+        add(timeBar);
+        add(timeTxt);
 
-        timeBar.cameras = [game.camHUD];
-        timeBarBG.cameras = [game.camHUD];
-        timeTxt.cameras = [game.camHUD];
+        timeBar.cameras = [getCamera('hud')];
+        timeBarBG.cameras = [getCamera('hud')];
+        timeTxt.cameras = [getCamera('hud')];
+    }
+
+    function add(o:FlxBasic)
+    {
+        if (game != null) 
+            return game.add(o);
+        else
+            return o;
+    }
+
+    function getCamera(name:String):FlxCamera
+    {
+        if (game == null)
+        {
+            return new FlxCamera(); // If PlayState doesn't exist, you can't use cameras.
+        }
+        else
+        {
+            if (name.toLowerCase() == 'hud' || name.toLowerCase() == 'other')
+                return game.camHUD;
+            else
+                return game.camGame;
+        }
     }
 
     function checkSettings()
