@@ -233,6 +233,22 @@ class TimeBar extends Module
         }
     }
 
+    public function onSongEnd(event:ScriptEvent)
+    {
+        game = null;
+        for (tween in timeTweens)
+        {
+            if (tween != null)
+                tween.cancel();
+        }
+        if (timeBar != null && doFading)
+        {
+            timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        }
+    }
+
    public function getOffsets()
    {
         if (!Assets.exists('assets/data/hudOffsets.json'))

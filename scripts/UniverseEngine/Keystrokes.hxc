@@ -37,6 +37,21 @@ class KeyStrokes extends Module
     var up:FlxSprite;
     var right:FlxSprite;
 
+
+    function killShit()
+    {
+        try {
+            left.destroy();
+            down.destroy();
+            up.destroy();
+            right.destroy();
+        }
+        catch(e:Dynamic)
+        {
+            return;
+        }
+    }
+
     function add(o:FlxBasic):FlxBasic
     {
         if (game != null) 
@@ -255,5 +270,10 @@ class KeyStrokes extends Module
    public function onSubStateCloseEnd(event:SubStateScriptEvent)
    {
     isPaused = false;
+   }
+
+   public function onSongEnd(event:ScriptEvent)
+   {
+    killShit();
    }
 }

@@ -353,4 +353,10 @@ class ScoreTxt extends Module
         if (scoreAlphaTween != null) scoreAlphaTween = null;
         if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
     }
+
+    public function onSongEnd(event:ScriptEvent)
+    {
+        if (scoreAlphaTween != null) scoreAlphaTween = null;
+        if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
+    }
 }
