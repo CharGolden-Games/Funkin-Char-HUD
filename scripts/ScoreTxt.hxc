@@ -19,6 +19,7 @@ import funkin.modding.module.Module;
 import funkin.play.PlayState;
 import funkin.Conductor;
 import funkin.ui.freeplay.FreeplayState;
+import funkin.Preferences;
 
 import StringTools;
 
@@ -65,6 +66,7 @@ class ScoreTxt extends Module
     var simpleRatings:Bool = false;
     var includeTimings:Bool = false;
     var doFading:Bool = false;
+    var badsShitsHurt:Bool = false;
 
     // Rating Shiz
     var ratingStuff:Array<Array<Dynamic>> = [
@@ -127,7 +129,7 @@ class ScoreTxt extends Module
         {
             scoreString = 'Score: 0 | Misses: 0 | Rating: ?';
         }
-        scoreTxt = new FlxText(0, 672, FlxG.width, scoreString);
+        scoreTxt = new FlxText(0, game.scoreText.y, FlxG.width, scoreString);
         scoreTxt.setFormat(Paths.font('vcr.ttf'), 18, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         scoreTxt.borderSize = 2;
         if (!vsCharHUD)
@@ -139,10 +141,11 @@ class ScoreTxt extends Module
         scoreTxt.alpha = doFading ? 0 : 1;
         
         // Now we move the damn healthbar out of the way.
-        game.healthBar.y = 642;
+        
+        /* game.healthBar.y = 642;
         game.healthBarBG.y = 638;
         game.iconP1.y += 567;
-        game.iconP2.y += 567;
+        game.iconP2.y += 567; */
     }
 
     public function onSongStart(event:ScriptEvent)
@@ -196,6 +199,8 @@ class ScoreTxt extends Module
             vsCharHUD = false;
             simpleRatings = false;
             includeTimings = false;
+            doFading = false;
+            badsShitsHurt = false;
         }
         else
         {
@@ -207,6 +212,7 @@ class ScoreTxt extends Module
                 simpleRatings = settings.simpleRatings;
                 includeTimings = settings.includeTiming;
                 doFading = settings.doFading;
+                badsShitsHurt = settings.badsShitsHurt;
             }
             catch(e:Dynamic)
             {
@@ -216,6 +222,7 @@ class ScoreTxt extends Module
                 simpleRatings = false;
                 includeTimings = false;
                 doFading = false;
+                badsShitsHurt = false;
             }
         }
     }
@@ -285,9 +292,11 @@ class ScoreTxt extends Module
                     bads++;
                     ratingMod(0.34, true);
                     checkDiff = 0;
+                    if (badsShitsHurt) game.health += -0.28;
                 case 'shit':
                     shits++;
                     checkDiff = 0;
+                    if (badsShitsHurt) game.health += -0.28;
             }
             if (!simpleRatings)
             {

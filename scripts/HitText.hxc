@@ -1,6 +1,5 @@
 // Flixel
 import flixel.text.FlxText;
-import flixel.text.FlxText;
 import flixel.text.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -25,6 +24,8 @@ import StringTools;
 class HitText extends Module
 {
     var game:PlayState;
+    var globalYOffset:Int = 0;    // change this to change how high the hitText appears.
+    var globalXOffset:Int = 0;    // change this to change how far right the hitText appears.
     public function new()
     {
         super('Hit Text - Char HUD');
@@ -39,7 +40,7 @@ class HitText extends Module
     var textTween:FlxTween;
     public function onNoteHit(event:HitNoteScriptEvent)
     {
-
+        getOffsets();
         if (event.judgement != 'perfect')
         {
             if (textTween != null)
@@ -53,7 +54,8 @@ class HitText extends Module
             hitText.alpha = 0;
             hitText.cameras = [game.camHUD];
             hitText.screenCenter();
-            hitText.x += -200;
+            hitText.x += (-200) + globalXOffset;
+            hitText.y += globalYOffset;
             game.add(hitText);
 
             hitText.alpha = 1;
@@ -81,4 +83,30 @@ class HitText extends Module
         if (hitText != null)
             hitText.destroy();
     }
+
+   public function getOffsets()
+   {
+        if (!Assets.exists('assets/data/hudOffsets.json'))
+        {
+            globalYOffset = -105; // High offset for this modpack specifically!
+            globalXOffset = 0;
+        }
+        else
+        {
+            try
+            {
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).hitText;
+    
+                globalXOffset = offset[0];
+                globalYOffset = offset[1];
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                globalYOffset = -105; // High offset for this modpack specifically!
+                globalXOffset = 0;
+            }
+        }
+   }
 }

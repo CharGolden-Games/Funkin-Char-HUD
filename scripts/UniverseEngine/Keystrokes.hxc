@@ -1,0 +1,199 @@
+// Flixel
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.FlxBasic;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.input.Controls;
+
+import StringTools;
+
+/**
+ * Originally created by markedengine in LUA, modified by Dave (Former dev of Universe Engine)
+ * Ported by Char :3c=L
+ */
+class KeyStrokes extends Module
+{
+    var baseX:Int = 90;
+    var baseY:Int = 330;
+    var game:PlayState = null;
+
+    var globalYOffset:Int = 0; // change this to change how high the keystrokes appear after baseY is used.
+    var globalXOffset:Int = 0;    // change this to change how far right the keystrokes appear after baseX is used.
+
+    var left:FlxSprite;
+    var down:FlxSprite;
+    var up:FlxSprite;
+    var right:FlxSprite;
+
+    function add(o:FlxBasic):FlxBasic
+    {
+        if (game != null) 
+            return game.add(o);
+        else
+            return o;
+    }
+
+    function getCamera(name:String):FlxCamera
+    {
+        if (game == null)
+        {
+            return new FlxCamera(); // If PlayState doesn't exist, you can't use cameras.
+        }
+        else
+        {
+            if (name.toLowerCase() == 'hud' || name.toLowerCase() == 'other')
+                return game.camHUD;
+            else
+                return game.camGame;
+        }
+    }
+
+   public function onCountdownStart(event:CountdownScriptEvent)
+   {
+        getOffsets();
+        game = PlayState.instance;
+
+        if (game.isInCutscene) return;
+
+        if (left != null) left.destroy();
+        if (down != null) down.destroy();
+        if (up != null) up.destroy();
+        if (right != null) right.destroy();
+
+        add(left = new FlxSprite(baseX - 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFFC24B99));
+        add(down = new FlxSprite(baseX, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFF00FFFF));
+        add(up = new FlxSprite(baseX, (baseY) + globalYOffset).makeGraphic(44, 44, 0xFF12FA05));
+        add(right = new FlxSprite(baseX + 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFFF9393F));
+
+        left.cameras = [getCamera('hud')];
+        down.cameras = [getCamera('hud')];
+        up.cameras = [getCamera('hud')];
+        right.cameras = [getCamera('hud')];
+
+        left.alpha = 0.3;
+        down.alpha = 0.3;
+        up.alpha = 0.3;
+        right.alpha = 0.3;
+
+        left.zIndex = 1010;
+        down.zIndex = 1011;
+        up.zIndex = 1012;
+        right.zIndex = 1013;
+   }
+
+   var leftTween:FlxTween;
+   var leftTweenAlpha:FlxTween;
+   var downTween:FlxTween;
+   var downTweenAlpha:FlxTween;
+   var upTween:FlxTween;
+   var upTweenAlpha:FlxTween;
+   var rightTween:FlxTween;
+   var rightTweenAlpha:FlxTween;
+
+   public function onUpdate(event:UpdateScriptEvent)
+   {
+        if (game == null) return;
+
+        var nleft:Bool = game.controls.NOTE_LEFT;
+        var ndown:Bool = game.controls.NOTE_DOWN;
+        var nup:Bool = game.controls.NOTE_UP;
+        var nright:Bool = game.controls.NOTE_RIGHT;
+
+        if (nleft)
+        {
+            if (leftTween != null) leftTween.cancel();
+            if (leftTweenAlpha != null) leftTweenAlpha.cancel();
+
+            left.alpha = 1;
+            left.x = baseX - 57;
+            leftTween = FlxTween.tween(left, {x: baseX - 47}, 1.5, {ease: FlxEase.expoOut});
+        }
+        else
+        {
+            if (leftTweenAlpha != null) leftTweenAlpha.cancel();
+            leftTweenAlpha = FlxTween.tween(left, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+        }
+
+        if (ndown)
+        {
+            if (downTween != null) downTween.cancel();
+            if (downTweenAlpha != null) downTweenAlpha.cancel();
+
+            down.alpha = 1;
+            down.y = (baseY + 57) + globalYOffset;
+            downTween = FlxTween.tween(down, {y: (baseY + 47) + globalYOffset}, 1.5, {ease: FlxEase.expoOut});
+        }
+        else
+        {
+            if (downTweenAlpha != null) downTweenAlpha.cancel();
+            downTweenAlpha = FlxTween.tween(down, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+        }
+
+        if (nup)
+        {
+            if (upTween != null) upTween.cancel();
+            if (upTweenAlpha != null) upTweenAlpha.cancel();
+
+            up.alpha = 1;
+            up.y = (baseY - 10) + globalYOffset;
+            upTween = FlxTween.tween(up, {y: baseY + globalYOffset}, 1.5, {ease: FlxEase.expoOut});
+        }
+        else
+        {
+            if (upTweenAlpha != null) upTweenAlpha.cancel();
+            upTweenAlpha = FlxTween.tween(up, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+        }
+
+        if (nright)
+        {
+            if (rightTween != null) rightTween.cancel();
+            if (rightTweenAlpha != null) rightTweenAlpha.cancel();
+
+            right.alpha = 1;
+            right.x = baseX + 57;
+            rightTween = FlxTween.tween(right, {x: baseX + 47}, 1.5, {ease: FlxEase.expoOut});
+        }
+        else
+        {
+            if (rightTweenAlpha != null) rightTweenAlpha.cancel();
+            rightTweenAlpha = FlxTween.tween(right, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+        }
+   }
+
+   public function getOffsets()
+   {
+        if (!Assets.exists('assets/data/hudOffsets.json'))
+        {
+            globalYOffset = -105; // High offset for this modpack specifically!
+            globalXOffset = 0;
+        }
+        else
+        {
+            try
+            {
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).keystrokes;
+    
+                globalXOffset = offset[0];
+                globalYOffset = offset[1];
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                globalYOffset = -105; // High offset for this modpack specifically!
+                globalXOffset = 0;
+            }
+        }
+   }
+}

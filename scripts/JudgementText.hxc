@@ -20,6 +20,8 @@ import funkin.ui.freeplay.FreeplayState;
 class JudgementText extends Module
 {
     var game:PlayState = null;
+    var globalYOffset:Int = 0;    // change this to change how high the judgeText appears.
+    var globalXOffset:Int = 0;    // change this to change how far right the judgeText appears.
 
     public function new()
     {
@@ -65,6 +67,7 @@ class JudgementText extends Module
     public function onCountdownStart(event:CountdownScriptEvent)
     {
         checkSettings();
+        getOffsets();
         game = PlayState.instance;
         if (game.isInCutscene) return;
         
@@ -96,6 +99,8 @@ class JudgementText extends Module
         judgeText.cameras = [game.camHUD];
         game.add(judgeText);
         judgeText.screenCenter(0x10);
+        judgeText.x += globalXOffset;
+        judgeText.y += globalYOffset;
         judgeText.alpha = doFading ? 0 : 1;
     }
 
@@ -214,4 +219,30 @@ class JudgementText extends Module
         if (tweenOut != null) tweenOut.cancel();
         if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});
     }
+
+   public function getOffsets()
+   {
+        if (!Assets.exists('assets/data/hudOffsets.json'))
+        {
+            globalYOffset = -105; // High offset for this modpack specifically!
+            globalXOffset = 0;
+        }
+        else
+        {
+            try
+            {
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).judgeText;
+    
+                globalXOffset = offset[0];
+                globalYOffset = offset[1];
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                globalYOffset = -105; // High offset for this modpack specifically!
+                globalXOffset = 0;
+            }
+        }
+   }
 }

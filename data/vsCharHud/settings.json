@@ -3,5 +3,6 @@
     "vsCharHUD": true,
     "simpleRatings": false,
     "includeTiming": false,
-    "doFading": true
+    "doFading": true,
+    "badsShitsHurt": false
 }

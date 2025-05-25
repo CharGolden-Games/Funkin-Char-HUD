@@ -29,7 +29,8 @@ import funkin.Paths;
 class TimeBar extends Module
 {
     var game:PlayState = null;
-
+    var globalYOffset:Int = 0;    // change this to change how high the timeBar appears.
+    var globalXOffset:Int = 0;    // change this to change how far right the timeBar appears.
 
     public function new()
     {
@@ -74,6 +75,7 @@ class TimeBar extends Module
     public function onCountdownStart(event:CountdownScriptEvent) 
     {
         checkSettings();
+        getOffsets();
         game = PlayState.instance;
         if (game.isInCutscene) return;
 
@@ -117,6 +119,14 @@ class TimeBar extends Module
         timeBar.cameras = [getCamera('hud')];
         timeBarBG.cameras = [getCamera('hud')];
         timeTxt.cameras = [getCamera('hud')];
+
+        timeBar.x += globalXOffset;
+        timeBarBG.x += globalXOffset;
+        timeTxt.x += globalXOffset;
+
+        timeBar.y += globalYOffset;
+        timeBarBG.y += globalYOffset;
+        timeTxt.y += globalYOffset;
     }
 
     function add(o:FlxBasic)
@@ -222,4 +232,30 @@ class TimeBar extends Module
             timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
         }
     }
+
+   public function getOffsets()
+   {
+        if (!Assets.exists('assets/data/hudOffsets.json'))
+        {
+            globalYOffset = -105; // High offset for this modpack specifically!
+            globalXOffset = 0;
+        }
+        else
+        {
+            try
+            {
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).hitText;
+    
+                globalXOffset = offset[0];
+                globalYOffset = offset[1];
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                globalYOffset = -105; // High offset for this modpack specifically!
+                globalXOffset = 0;
+            }
+        }
+   }
 }
