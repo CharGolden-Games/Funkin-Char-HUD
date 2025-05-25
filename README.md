@@ -8,6 +8,9 @@
 
 - Time Bar
 - Healthbar Colors
+- Judgement Text
+- Hit Timing Text
+- Keystrokes (port from [Universe Engine](https://github.com/VideoBotYT/Universe-Engine))
 
 ## And changes the following:
 
