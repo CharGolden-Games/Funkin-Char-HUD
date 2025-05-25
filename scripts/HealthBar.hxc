@@ -1,6 +1,5 @@
 // Flixel
 import flixel.text.FlxText;
-import flixel.text.FlxText;
 import flixel.text.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
