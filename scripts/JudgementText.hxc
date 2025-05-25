@@ -215,6 +215,7 @@ class JudgementText extends Module
     public function onSongRetry(event:ScriptEvent)
     {
         game = null;
+        if (!doFading) return;
         if (textTween != null) textTween.cancel();
         if (tweenOut != null) tweenOut.cancel();
         if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});
@@ -223,6 +224,7 @@ class JudgementText extends Module
     public function onSongEnd(event:ScriptEvent)
     {
         game = null;
+        if (!doFading) return;
         if (textTween != null) textTween.cancel();
         if (tweenOut != null) tweenOut.cancel();
         if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});
