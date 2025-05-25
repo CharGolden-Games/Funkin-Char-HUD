@@ -237,7 +237,7 @@ class TimeBar extends Module
    {
         if (!Assets.exists('assets/data/hudOffsets.json'))
         {
-            globalYOffset = -105; // High offset for this modpack specifically!
+            globalYOffset = 0;
             globalXOffset = 0;
         }
         else
@@ -253,7 +253,7 @@ class TimeBar extends Module
             {
                 trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
     
-                globalYOffset = -105; // High offset for this modpack specifically!
+                globalYOffset = 0;
                 globalXOffset = 0;
             }
         }
