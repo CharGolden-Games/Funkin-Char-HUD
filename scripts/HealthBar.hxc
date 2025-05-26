@@ -39,21 +39,31 @@ class HealthBar extends Module
     {
         game = PlayState.instance;
 
-        merge_ColorJson();
-        
-        var charID_D:String = '';
-        var charID_B:String = '';
-        if (game.currentStage.getDad() != null)
-            charID_D = game.currentStage.getDad().characterId;
-        if (game.currentStage.getBoyfriend() != null)
-            charID_B = game.currentStage.getBoyfriend().characterId;
-        
-        game.healthBar.createFilledBar(getColor(charID_D, false), getColor(charID_B, true));
-        game.healthBar.updateBar();
+        if (merge_ColorJson() != null)
+        {
+            try
+            {
+                var charID_D:String = '';
+                var charID_B:String = '';
+                if (game.currentStage.getDad() != null)
+                    charID_D = game.currentStage.getDad().characterId;
+                if (game.currentStage.getBoyfriend() != null)
+                    charID_B = game.currentStage.getBoyfriend().characterId;
+                
+                game.healthBar.createFilledBar(getColor(charID_D, false), getColor(charID_B, true));
+                game.healthBar.updateBar();
+            }
+            catch(e:Dynamic)
+            {
+                trace('Couldn\'t change colors! did you spam reset or sumthin\'?');
+                return;
+            }
+        }
     }
 
     function merge_ColorJson():Array<Int>
     {
+        if (game == null) return null;
         hbColors = [];
         if (Assets.exists('assets/data/vsCharHud/colors.json'))
         {
@@ -108,5 +118,10 @@ class HealthBar extends Module
 
             return hexRGB(color[0], color[1], color[2]);
         }
+    }
+
+    public function onGameOver(event:ScriptEvent)
+    {
+        game == null;
     }
 }

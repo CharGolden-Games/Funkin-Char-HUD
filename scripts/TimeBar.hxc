@@ -190,7 +190,17 @@ class TimeBar extends Module
     {
         if (game == null) return;
         if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
-            timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
+        {
+            try
+            {
+                timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
+            }
+            catch(e:Dynamic)
+            {
+                trace('Could not update time text!');
+                return;
+            }
+        }
 
         if (timeBar != null)
         {
@@ -202,7 +212,15 @@ class TimeBar extends Module
             {
                 timePercent = 0.5; // to test the bar.
             }
-            timeBar.value = timePercent;
+            try
+            {
+                timeBar.value = timePercent;
+            }
+            catch(e:Dynamic)
+            {
+                trace('Could not update time bar!');
+                return;
+            }
             //trace(timePercent);
         }
     }
@@ -212,6 +230,16 @@ class TimeBar extends Module
         super.onSubStateOpenBegin(event);
         
         if (Std.isOfType(event.targetState, FreeplayState))
+        {
+            killShit();
+        }
+    }
+
+    public function onSubStateCloseBegin(event:SubStateScriptEvent)
+    {
+        super.onSubStateCloseBegin(event);
+        
+        if (Std.isOfType(event.targetState, PlayState))
         {
             killShit();
         }
