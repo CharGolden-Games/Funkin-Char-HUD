@@ -90,7 +90,18 @@ class HealthBar extends Module
 
     function getColor(charJson:String, isPlayer:Bool = false):Int
     {
-        var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
+        
+        var json:Dynamic = null;
+        try
+        {
+            json = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
+        }
+        catch(e:Dynamic)
+        {
+            trace('Could not get color!: `$e`');
+            return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+        }
+        if (json.inheritsFrom != null) return getColor(json.inheritsFrom, isPlayer);
 
         var color:Null<Array<Int>> = json.healthBarColor;
         if (color == null)

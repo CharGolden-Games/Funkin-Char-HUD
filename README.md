@@ -81,9 +81,17 @@ in your character file add this after the name value, replacing `0xFF000000` wit
 
 - Add an entry to your character JSON (RGB Array)
 
-in your character file add this after the name value, add an array like the following:
+in your character file after the name value, add an array like the following:
 
 `"healthBarColor": [255, 136 0],`
+
+- Add an entry to your character JSON (InheritsFrom)
+
+in your character file add this after the name value replacing `charName` with the character json filename to inherit from (Also works for ones only in colors.json)
+
+### WARNING THIS IS RECURSIVE AND MAY CRASH IF YOU CHAIN TOO MANY CHARACTER JSONS TO EACHOTHER (e.g. char1 chains to char2 chains to char3 etc.)
+
+`"inheritsFrom": "charName",`
 
 
 ## Accuracy - Include Timing
