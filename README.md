@@ -89,9 +89,9 @@ in your character file after the name value, add an array like the following:
 
 in your character file add this after the name value replacing `charName` with the character json filename to inherit from (Also works for ones only in colors.json)
 
-### WARNING THIS IS RECURSIVE AND MAY CRASH IF YOU CHAIN TOO MANY CHARACTER JSONS TO EACHOTHER (e.g. char1 chains to char2 chains to char3 etc.)
-
 `"inheritsFrom": "charName",`
+
+### WARNING THIS IS RECURSIVE AND MAY CRASH IF YOU CHAIN TOO MANY CHARACTER JSONS TO EACHOTHER (e.g. char1 chains to char2 chains to char3 etc.)
 
 
 ## Accuracy - Include Timing
