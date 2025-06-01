@@ -102,10 +102,6 @@ class TimeBar extends Module
         timeTxt.zIndex = 999;
         timeTxt.alpha = doFading ? 0 : 1;
         timeTxt.borderSize = 2;
-        
-        add(timeBarBG);
-        add(timeBar);
-        add(timeTxt);
 
         timeBar.cameras = [getCamera('hud')];
         timeBarBG.cameras = [getCamera('hud')];
@@ -118,6 +114,10 @@ class TimeBar extends Module
         timeBar.y += globalYOffset;
         timeBarBG.y += globalYOffset;
         timeTxt.y += globalYOffset;
+        
+        add(timeBarBG);
+        add(timeBar);
+        add(timeTxt);
         firstRun = false;
     }
 
@@ -288,7 +288,7 @@ class TimeBar extends Module
         {
             try
             {
-                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).hitText;
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).timeBar;
     
                 globalXOffset = offset[0];
                 globalYOffset = offset[1];

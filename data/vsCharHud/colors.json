@@ -98,6 +98,14 @@
                 "monster-christmas"
             ],
             "color": "0xFFF2F76E"
+        },
+        {
+            "affects": [
+                "char",
+                "char-opponent",
+                "char-p3"
+            ],
+            "color": "0xFFFF8800"
         }
     ]
 }

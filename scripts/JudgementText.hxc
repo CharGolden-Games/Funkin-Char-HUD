@@ -89,7 +89,7 @@ class JudgementText extends Module
             judgeText = null;
         }
                 
-        judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0\nMax Combo: 0');
+        judgeText = new FlxText(0, 0, 0, 'Sicks:     0\nGoods:     0\nBads:      0\nShits:     0\nMax Combo: 0');
         if (!simpleRatings)
         {
             judgeText.text += '\nResult Rating: N/A';
@@ -125,10 +125,10 @@ class JudgementText extends Module
     {
         if (judgeText != null)
         {
-            judgeText.text = 'Sicks: ' + Std.string(sicks)
-            + '\nGoods: '+ Std.string(goods)
-            + '\nBads: ' + Std.string(bads)
-            + '\nShits: ' + Std.string(shits)
+            judgeText.text = 'Sicks:     ' + Std.string(sicks)
+            + '\nGoods:     '+ Std.string(goods)
+            + '\nBads:      ' + Std.string(bads)
+            + '\nShits:     ' + Std.string(shits)
             + '\nMax Combo: ' + Std.string(maxCombo);
             if (!simpleRatings)
             {
