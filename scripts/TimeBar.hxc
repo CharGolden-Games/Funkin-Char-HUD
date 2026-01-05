@@ -31,7 +31,6 @@ class TimeBar extends Module
     var game:PlayState = null;
     var globalYOffset:Int = 0;    // change this to change how high the timeBar appears.
     var globalXOffset:Int = 0;    // change this to change how far right the timeBar appears.
-    var firstRun:Bool = true;
 
     public function new()
     {
@@ -43,9 +42,8 @@ class TimeBar extends Module
     var timeTxt:FlxText;
     var doFading:Bool = false;
 
-    function killShit(?nullGame:Bool = true)
+    function killShit()
     {
-        if (nullGame) game == null;
         try {
             for (tween in timeTweens)
             {
@@ -69,18 +67,29 @@ class TimeBar extends Module
         {
             return;
         }
+        if (game != null) game == null;
     }
     var timePercent:Float = 0;
     var vsCharColors:Bool = false;
 
     public function onCountdownStart(event:CountdownScriptEvent) 
     {
-        game = PlayState.instance;
-        if (game.isInCutscene) return;
-        if (!firstRun) killShit(false);
-
         checkSettings();
         getOffsets();
+        game = PlayState.instance;
+        if (game.isInCutscene) return;
+
+        if (timeBar != null)
+        {
+            timeBar.destroy();
+            timeBar = null;
+
+            timeBarBG.destroy();
+            timeBarBG = null;
+
+            timeTxt.destroy();
+            timeTxt = null;
+        }
 
         timeBarBG = FunkinSprite.create(0,10,'timeBar');
         timeBarBG.screenCenter(0x01);
@@ -102,6 +111,10 @@ class TimeBar extends Module
         timeTxt.zIndex = 999;
         timeTxt.alpha = doFading ? 0 : 1;
         timeTxt.borderSize = 2;
+        
+        add(timeBarBG);
+        add(timeBar);
+        add(timeTxt);
 
         timeBar.cameras = [getCamera('hud')];
         timeBarBG.cameras = [getCamera('hud')];
@@ -114,11 +127,6 @@ class TimeBar extends Module
         timeBar.y += globalYOffset;
         timeBarBG.y += globalYOffset;
         timeTxt.y += globalYOffset;
-        
-        add(timeBarBG);
-        add(timeBar);
-        add(timeTxt);
-        firstRun = false;
     }
 
     function add(o:FlxBasic)
@@ -179,28 +187,10 @@ class TimeBar extends Module
 		timeTweens.push(FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
     }
 
-    public function onCreate(event:ScriptEvent)
-    {
-        // Basically just in case these variables don't ACTUALLY reset on reload.
-        if (firstRun == false) firstRun = true;
-        if (game != null) game == null;
-    }
-
     public function onUpdate(event:UpdateScriptEvent)
     {
-        if (game == null) return;
         if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
-        {
-            try
-            {
-                timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
-            }
-            catch(e:Dynamic)
-            {
-                trace('Could not update time text!');
-                return;
-            }
-        }
+            timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
 
         if (timeBar != null)
         {
@@ -212,15 +202,7 @@ class TimeBar extends Module
             {
                 timePercent = 0.5; // to test the bar.
             }
-            try
-            {
-                timeBar.value = timePercent;
-            }
-            catch(e:Dynamic)
-            {
-                trace('Could not update time bar!');
-                return;
-            }
+            timeBar.value = timePercent;
             //trace(timePercent);
         }
     }
@@ -235,33 +217,7 @@ class TimeBar extends Module
         }
     }
 
-    public function onSubStateCloseBegin(event:SubStateScriptEvent)
-    {
-        super.onSubStateCloseBegin(event);
-        
-        if (Std.isOfType(event.targetState, PlayState))
-        {
-            killShit();
-        }
-    }
-
     public function onSongRetry(event:ScriptEvent)
-    {
-        game = null;
-        for (tween in timeTweens)
-        {
-            if (tween != null)
-                tween.cancel();
-        }
-        if (timeBar != null && doFading)
-        {
-            timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
-            timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
-            timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
-        }
-    }
-
-    public function onSongEnd(event:ScriptEvent)
     {
         game = null;
         for (tween in timeTweens)
@@ -288,7 +244,7 @@ class TimeBar extends Module
         {
             try
             {
-                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).timeBar;
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).hitText;
     
                 globalXOffset = offset[0];
                 globalYOffset = offset[1];

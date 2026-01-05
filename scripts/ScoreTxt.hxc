@@ -67,6 +67,7 @@ class ScoreTxt extends Module
     var includeTimings:Bool = false;
     var doFading:Bool = false;
     var badsShitsHurt:Bool = false;
+    var playGhostAnim:Bool = true;
 
     // Rating Shiz
     var ratingStuff:Array<Array<Dynamic>> = [
@@ -201,6 +202,7 @@ class ScoreTxt extends Module
             includeTimings = false;
             doFading = false;
             badsShitsHurt = false;
+            playGhostAnim = true;
         }
         else
         {
@@ -213,6 +215,7 @@ class ScoreTxt extends Module
                 includeTimings = settings.includeTiming;
                 doFading = settings.doFading;
                 badsShitsHurt = settings.badsShitsHurt;
+                playGhostAnim = settings.playGhostAnim;
             }
             catch(e:Dynamic)
             {
@@ -223,6 +226,7 @@ class ScoreTxt extends Module
                 includeTimings = false;
                 doFading = false;
                 badsShitsHurt = false;
+                playGhostAnim = true;
             }
         }
     }
@@ -315,6 +319,36 @@ class ScoreTxt extends Module
     public function onNoteGhostMiss(event:GhostMissNoteScriptEvent)
     {
         event.cancel();
+        
+        var dir:Int = event.dir;
+        var singAnim:String = 'sing';
+
+        switch (dir)
+        {
+            case 0:
+                singAnim+='LEFT';
+            case 1:
+                singAnim+='DOWN';
+            case 2:
+                singAnim+='UP';
+            case 3:
+                singAnim+='RIGHT';
+        }
+        if (playGhostAnim)
+        {
+            game.currentStage.getBoyfriend().playAnimation(singAnim);
+            getRandomHealth();
+        }
+    }
+
+    function getRandomHealth()
+    {
+        var intHundo:Int = FlxG.random.int(-200, 200);
+
+        var newHealth:Float = game.health + intHundo / 100;
+        trace(newHealth);
+        if (newHealth >= 0) newHealth = 0.1;
+        //game.health = newHealth;
     }
 
     function ratingMod(change:Float, isBad:Bool = false)
@@ -350,12 +384,6 @@ class ScoreTxt extends Module
     public function onSongRetry(event:ScriptEvent)
     {
         //scoreTxt.text = scoreString = vsCharHUD ? 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET' : 'Score: 0 | Misses: 0 | Rating: ?';
-        if (scoreAlphaTween != null) scoreAlphaTween = null;
-        if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
-    }
-
-    public function onSongEnd(event:ScriptEvent)
-    {
         if (scoreAlphaTween != null) scoreAlphaTween = null;
         if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
     }

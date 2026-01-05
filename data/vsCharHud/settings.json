@@ -4,5 +4,7 @@
     "simpleRatings": false,
     "includeTiming": false,
     "doFading": true,
-    "badsShitsHurt": false
+    "badsShitsHurt": false,
+    "playGhostAnim": true,
+    "resetInStoryMode": false
 }

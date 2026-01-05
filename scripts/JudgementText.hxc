@@ -15,6 +15,7 @@ import funkin.Paths;
 import funkin.Highscore;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
+import funkin.play.PlayStatePlaylist as SongPlaylist;
 import funkin.ui.freeplay.FreeplayState;
 
 class JudgementText extends Module
@@ -62,7 +63,10 @@ class JudgementText extends Module
     
     // Settings
     var simpleRatings:Bool = false;
-    var doFading:Bool = false;
+    var doFading:Bool = false; 
+    var resetInStoryMode:Bool = false; // if true, makes the text reset on every song reload regardless of if it's in story mode.
+    var lastSongID:String = "";
+    var lastRatings:Array<Int> = [0,0,0,0,0,0,0,0];
 
     public function onCountdownStart(event:CountdownScriptEvent)
     {
@@ -75,24 +79,76 @@ class JudgementText extends Module
         {
             textTween.cancel();
         }
-        totalHit = 0;
-        totalPlayed = 0;
-        sicks = 0;
-        goods = 0;
-        bads = 0;
-        shits = 0;
-        misses = 0;
-        maxCombo = 0;
+        if (!SongPlaylist.isStoryMode || resetInStoryMode) // This should make it correctly reflect the final rating at the end of story mode
+        {
+            totalHit = 0;
+            totalPlayed = 0;
+            sicks = 0;
+            goods = 0;
+            bads = 0;
+            shits = 0;
+            misses = 0;
+            maxCombo = 0;
+        }
+        else
+        {
+            if (lastSongID == game.currentSong.id)
+            {
+                var pos:Int = -1;
+                for (funny in lastRatings)
+                {
+                    pos++;
+                    switch (pos) // Ineffecient? Possibly. Works? Yes.
+                    {
+                        case 0:
+                            totalHit = funny;
+                        case 1:
+                            totalPlayed = funny;
+                        case 2:
+                            sicks = funny;
+                        case 3:
+                            goods = funny;
+                        case 4:
+                            bads = funny;
+                        case 5:
+                            shits = funny;
+                        case 6:
+                            misses = funny;
+                        case 7:
+                            maxCombo = funny;
+                    }
+                }
+            }
+            else
+            {
+                lastRatings = [totalHit, totalPlayed, sicks, goods, bads, shits, misses, maxCombo];
+                lastSongID = game.currentSong.id;
+            }
+        }
         if (judgeText != null)
         {
             judgeText.destroy();
             judgeText = null;
         }
-                
-        judgeText = new FlxText(0, 0, 0, 'Sicks:     0\nGoods:     0\nBads:      0\nShits:     0\nMax Combo: 0');
+        
+        judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0\nMax Combo: 0');
         if (!simpleRatings)
         {
             judgeText.text += '\nResult Rating: N/A';
+        }
+        if (SongPlaylist.isStoryMode || !resetInStoryMode)
+        {
+            judgeText.text = 'Sicks: ' + Std.string(sicks)
+            + '\nGoods: '+ Std.string(goods)
+            + '\nBads: ' + Std.string(bads)
+            + '\nShits: ' + Std.string(shits)
+            + '\nMax Combo: ' + Std.string(maxCombo);
+            if (!simpleRatings)
+            {
+                judgeText.text += '\nResult Rating: ' + tallyUpScore() + '%';
+                if (goods == 0 && bads == 0 && shits == 0) judgeText.text += ' (Gold Perfect)';
+                else if (bads == 0 && shits == 0 && misses == 0) judgeText.text += ' (Perfect)';
+            }
         }
         judgeText.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         judgeText.borderSize = 2;
@@ -125,10 +181,10 @@ class JudgementText extends Module
     {
         if (judgeText != null)
         {
-            judgeText.text = 'Sicks:     ' + Std.string(sicks)
-            + '\nGoods:     '+ Std.string(goods)
-            + '\nBads:      ' + Std.string(bads)
-            + '\nShits:     ' + Std.string(shits)
+            judgeText.text = 'Sicks: ' + Std.string(sicks)
+            + '\nGoods: '+ Std.string(goods)
+            + '\nBads: ' + Std.string(bads)
+            + '\nShits: ' + Std.string(shits)
             + '\nMax Combo: ' + Std.string(maxCombo);
             if (!simpleRatings)
             {
@@ -174,6 +230,7 @@ class JudgementText extends Module
             {
                 simpleRatings = false;
                 doFading = false;
+                resetInStoryMode = false;
             }
             else
             {
@@ -183,6 +240,7 @@ class JudgementText extends Module
     
                     simpleRatings = settings.simpleRatings;
                     doFading = settings.doFading;
+                    resetInStoryMode = settings.resetInStoryMode;
                 }
                 catch(e:Dynamic)
                 {
@@ -190,6 +248,7 @@ class JudgementText extends Module
     
                     simpleRatings = false;
                     doFading = false;
+                    resetInStoryMode = false;
                 }
             }
         }
@@ -215,16 +274,6 @@ class JudgementText extends Module
     public function onSongRetry(event:ScriptEvent)
     {
         game = null;
-        if (!doFading) return;
-        if (textTween != null) textTween.cancel();
-        if (tweenOut != null) tweenOut.cancel();
-        if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});
-    }
-
-    public function onSongEnd(event:ScriptEvent)
-    {
-        game = null;
-        if (!doFading) return;
         if (textTween != null) textTween.cancel();
         if (tweenOut != null) tweenOut.cancel();
         if (judgeText != null) tweenOut = FlxTween.tween(judgeText, {alpha: 0}, 0.5, {ease: FlxEase.linear});

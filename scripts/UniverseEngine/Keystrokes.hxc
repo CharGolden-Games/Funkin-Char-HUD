@@ -27,7 +27,6 @@ class KeyStrokes extends Module
     var baseX:Int = 90;
     var baseY:Int = 330;
     var game:PlayState = null;
-    var isPaused:Bool = false;
 
     var globalYOffset:Int = 0; // change this to change how high the keystrokes appear after baseY is used.
     var globalXOffset:Int = 0;    // change this to change how far right the keystrokes appear after baseX is used.
@@ -36,21 +35,6 @@ class KeyStrokes extends Module
     var down:FlxSprite;
     var up:FlxSprite;
     var right:FlxSprite;
-
-
-    function killShit()
-    {
-        try {
-            left.destroy();
-            down.destroy();
-            up.destroy();
-            right.destroy();
-        }
-        catch(e:Dynamic)
-        {
-            return;
-        }
-    }
 
     function add(o:FlxBasic):FlxBasic
     {
@@ -81,7 +65,6 @@ class KeyStrokes extends Module
         game = PlayState.instance;
 
         if (game.isInCutscene) return;
-        if (isPaused) isPaused = false;
 
         if (left != null) left.destroy();
         if (down != null) down.destroy();
@@ -118,62 +101,17 @@ class KeyStrokes extends Module
    var rightTween:FlxTween;
    var rightTweenAlpha:FlxTween;
 
-   public function get_left():Bool
-   {
-        if (isPaused)
-        {
-            return game.controls.UI_LEFT;
-        }
-        else
-        {
-            return game.controls.NOTE_LEFT;
-        }
-   }
-
-   public function get_down():Bool
-   {
-        if (isPaused)
-        {
-            return game.controls.UI_DOWN;
-        }
-        else
-        {
-            return game.controls.NOTE_DOWN;
-        }
-   }
-
-   public function get_up():Bool
-   {
-        if (isPaused)
-        {
-            return game.controls.UI_UP;
-        }
-        else
-        {
-            return game.controls.NOTE_UP;
-        }
-   }
-
-   public function get_right():Bool
-   {
-        if (isPaused)
-        {
-            return game.controls.UI_RIGHT;
-        }
-        else
-        {
-            return game.controls.NOTE_RIGHT;
-        }
-   }
+   var ngt:Float = 1.5; // This determines how long to send the shit out
+   var nbt:Float = 0.15; // This determines how long to bring the shit back
 
    public function onUpdate(event:UpdateScriptEvent)
    {
         if (game == null) return;
 
-        var nleft:Bool = get_left();
-        var ndown:Bool = get_down();
-        var nup:Bool = get_up();
-        var nright:Bool = get_right();
+        var nleft:Bool = game.controls.NOTE_LEFT;
+        var ndown:Bool = game.controls.NOTE_DOWN;
+        var nup:Bool = game.controls.NOTE_UP;
+        var nright:Bool = game.controls.NOTE_RIGHT;
 
         if (nleft)
         {
@@ -182,12 +120,12 @@ class KeyStrokes extends Module
 
             left.alpha = 1;
             left.x = baseX - 57;
-            leftTween = FlxTween.tween(left, {x: baseX - 47}, 1.5, {ease: FlxEase.expoOut});
+            leftTween = FlxTween.tween(left, {x: baseX - 47}, ngt, {ease: FlxEase.expoOut});
         }
         else
         {
             if (leftTweenAlpha != null) leftTweenAlpha.cancel();
-            leftTweenAlpha = FlxTween.tween(left, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+            leftTweenAlpha = FlxTween.tween(left, {alpha: 0.3}, nbt, {ease: FlxEase.linear});
         }
 
         if (ndown)
@@ -197,12 +135,12 @@ class KeyStrokes extends Module
 
             down.alpha = 1;
             down.y = (baseY + 57) + globalYOffset;
-            downTween = FlxTween.tween(down, {y: (baseY + 47) + globalYOffset}, 1.5, {ease: FlxEase.expoOut});
+            downTween = FlxTween.tween(down, {y: (baseY + 47) + globalYOffset}, ngt, {ease: FlxEase.expoOut});
         }
         else
         {
             if (downTweenAlpha != null) downTweenAlpha.cancel();
-            downTweenAlpha = FlxTween.tween(down, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+            downTweenAlpha = FlxTween.tween(down, {alpha: 0.3}, nbt, {ease: FlxEase.linear});
         }
 
         if (nup)
@@ -212,12 +150,12 @@ class KeyStrokes extends Module
 
             up.alpha = 1;
             up.y = (baseY - 10) + globalYOffset;
-            upTween = FlxTween.tween(up, {y: baseY + globalYOffset}, 1.5, {ease: FlxEase.expoOut});
+            upTween = FlxTween.tween(up, {y: baseY + globalYOffset}, ngt, {ease: FlxEase.expoOut});
         }
         else
         {
             if (upTweenAlpha != null) upTweenAlpha.cancel();
-            upTweenAlpha = FlxTween.tween(up, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+            upTweenAlpha = FlxTween.tween(up, {alpha: 0.3}, nbt, {ease: FlxEase.linear});
         }
 
         if (nright)
@@ -227,12 +165,12 @@ class KeyStrokes extends Module
 
             right.alpha = 1;
             right.x = baseX + 57;
-            rightTween = FlxTween.tween(right, {x: baseX + 47}, 1.5, {ease: FlxEase.expoOut});
+            rightTween = FlxTween.tween(right, {x: baseX + 47}, ngt, {ease: FlxEase.expoOut});
         }
         else
         {
             if (rightTweenAlpha != null) rightTweenAlpha.cancel();
-            rightTweenAlpha = FlxTween.tween(right, {alpha: 0.3}, 0.15, {ease: FlxEase.linear});
+            rightTweenAlpha = FlxTween.tween(right, {alpha: 0.3}, nbt, {ease: FlxEase.linear});
         }
    }
 
@@ -260,20 +198,5 @@ class KeyStrokes extends Module
                 globalXOffset = 0;
             }
         }
-   }
-
-   public function onSubStateOpenBegin(event:SubStateScriptEvent)
-   {
-    isPaused = true;
-   }
-
-   public function onSubStateCloseEnd(event:SubStateScriptEvent)
-   {
-    isPaused = false;
-   }
-
-   public function onSongEnd(event:ScriptEvent)
-   {
-    killShit();
    }
 }
