@@ -21,7 +21,7 @@ import openfl.utils.Assets;
 // Funkin
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
-import funkin.ui.freeplay.FreeplayState;
+import funkin.play.PauseSubState as SafeState;
 import funkin.Conductor;
 import funkin.graphics.FunkinSprite;
 import funkin.Paths;
@@ -74,6 +74,7 @@ class TimeBar extends Module
 
     public function onCountdownStart(event:CountdownScriptEvent) 
     {
+        noUpdate = false;
         checkSettings();
         getOffsets();
         game = PlayState.instance;
@@ -152,6 +153,11 @@ class TimeBar extends Module
         }
     }
 
+    public function onSongEnd(event:ScriptEvent)
+    {
+        killShit(); // PLEASEEEEE
+    }
+
     function checkSettings()
     {
         if (!Assets.exists('assets/data/vsCharHud/settings.json'))
@@ -187,6 +193,7 @@ class TimeBar extends Module
 		timeTweens.push(FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
     }
 
+    var noUpdate:Bool = false;
     public function onUpdate(event:UpdateScriptEvent)
     {
         if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
@@ -197,12 +204,12 @@ class TimeBar extends Module
             try
             {
                 timePercent = Conductor.instance.songPosition / FlxG.sound.music.length;
+                timeBar.value = timePercent;
             }
-            catch(e:Dynamic)
+            catch (e:Dynamic)
             {
-                timePercent = 0.5; // to test the bar.
+                var FUCKALL:String = '';
             }
-            timeBar.value = timePercent;
             //trace(timePercent);
         }
     }
@@ -211,8 +218,9 @@ class TimeBar extends Module
     {
         super.onSubStateOpenBegin(event);
         
-        if (Std.isOfType(event.targetState, FreeplayState))
+        if (!Std.isOfType(event.targetState, SafeState))
         {
+            noUpdate = true;
             killShit();
         }
     }
