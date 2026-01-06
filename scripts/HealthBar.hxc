@@ -25,6 +25,7 @@ import StringTools;
 typedef HBColor = {
     var affects:Array<String>;
     var color:String;
+    @:optional var altColor:String; // if this is defined, randomly uses this color instead.
 }
 
 class HealthBar extends Module
@@ -93,6 +94,10 @@ class HealthBar extends Module
                 {
                     if (affects == charJson)
                     {
+                        if (color.altColor != null && FlxG.random.bool(25))
+                        {
+                            return Std.int(color.altColor);
+                        }
                         return Std.int(color.color);
                     }
                 }
@@ -104,6 +109,12 @@ class HealthBar extends Module
         {
             if (Std.parseInt(Std.string(json.healthBarColor)) != null)
             {
+                if (json.altHBC != null)
+                {
+                    var newColor:Int = Std.parseInt(Std.string(json.altHBC));
+                    if (newColor != null && FlxG.random.bool(25))
+                        return newColor
+                }
                 return Std.parseInt(Std.string(json.healthBarColor));
             }
 

@@ -69,7 +69,8 @@
                 "spooky-dark",
                 "spooky-playable"
             ],
-            "color": "0xFFD57E00"
+            "color": "0xFFD57E00",
+            "altColor": "0xFFB4B4B4"
         },
         {
             "affects": [
