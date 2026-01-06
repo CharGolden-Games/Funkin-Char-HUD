@@ -114,7 +114,7 @@ class HealthBar extends Module
                 {
                     var newColor:Int = Std.parseInt(Std.string(json.altHBC));
                     if (newColor != null && FlxG.random.bool(25))
-                        return newColor
+                        return newColor;
                 }
                 return Std.parseInt(Std.string(json.healthBarColor));
             }
