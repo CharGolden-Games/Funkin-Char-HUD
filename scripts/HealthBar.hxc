@@ -85,6 +85,7 @@ class HealthBar extends Module
         var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
 
         var color:Null<Array<Int>> = json.healthBarColor;
+        var color2:Null<Array<Iny>> = json.altHBC;
         if (color == null)
         {
             // The following happens if instead you have a character that's in the json.
@@ -117,6 +118,9 @@ class HealthBar extends Module
                 }
                 return Std.parseInt(Std.string(json.healthBarColor));
             }
+
+            if (color2 != null && FlxG.random.bool(25))
+                return hexRGB(color2[0], color2[1], color2[2]);
 
             return hexRGB(color[0], color[1], color[2]);
         }
