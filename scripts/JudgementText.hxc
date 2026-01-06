@@ -136,7 +136,7 @@ class JudgementText extends Module
         {
             judgeText.text += '\nResult Rating: N/A';
         }
-        if (SongPlaylist.isStoryMode || !resetInStoryMode)
+        if (SongPlaylist.isStoryMode && !resetInStoryMode)
         {
             judgeText.text = 'Sicks: ' + Std.string(sicks)
             + '\nGoods: '+ Std.string(goods)
