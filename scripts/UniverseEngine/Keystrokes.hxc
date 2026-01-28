@@ -36,6 +36,8 @@ class KeyStrokes extends Module
     var up:FlxSprite;
     var right:FlxSprite;
 
+    var disabled:Bool = false;
+
     function add(o:FlxBasic):FlxBasic
     {
         if (game != null) 
@@ -63,8 +65,9 @@ class KeyStrokes extends Module
    {
         getOffsets();
         game = PlayState.instance;
+        disabled = false;
 
-        if (game.isInCutscene) return;
+        if (game.isInCutscene) disabled = true;
 
         if (left != null) left.destroy();
         if (down != null) down.destroy();
@@ -106,7 +109,7 @@ class KeyStrokes extends Module
 
    public function onUpdate(event:UpdateScriptEvent)
    {
-        if (game == null) return;
+        if (game == null || disabled) return;
 
         var nleft:Bool = game.controls.NOTE_LEFT;
         var ndown:Bool = game.controls.NOTE_DOWN;
