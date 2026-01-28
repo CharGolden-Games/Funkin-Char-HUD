@@ -69,7 +69,7 @@ use the following template to add an entry (Color code MUST start with `0xFF`):
 
 - Add an entry to your character JSON (Hex Color Code)
 
-in your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
+In your character file add this after the name value, replacing `0xFF000000` with the hex color value you want:
 
 > [!NOTE]
 > The color code MUST start with 0xFF
@@ -78,10 +78,17 @@ in your character file add this after the name value, replacing `0xFF000000` wit
 
 - Add an entry to your character JSON (RGB Array)
 
-in your character file add this after the name value, add an array like the following:
+In your character file after the name value, add an array like the following:
 
 `"healthBarColor": [255, 136 0],`
 
+- Inheriting another character file's color
+
+In your character file after the name value, add the following:
+
+`"inheritsFrom": "bf"`
+
+replacing `bf` with the character file you want to inherit the color from.
 
 ### Accuracy - Include Timing
 
