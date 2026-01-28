@@ -84,6 +84,11 @@ class HealthBar extends Module
     {
         var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
 
+        if (json.inheritsFrom != null)
+        {
+            return getColor(json.inheritsFrom, isPlayer);
+        }
+
         var color:Null<Array<Int>> = json.healthBarColor;
         var color2:Null<Array<Iny>> = json.altHBC;
         if (color == null)
