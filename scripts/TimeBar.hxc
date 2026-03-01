@@ -79,7 +79,11 @@ class TimeBar extends Module
         checkSettings();
         getOffsets();
         game = PlayState.instance;
-        if (game.isInCutscene) return;
+        if (game.isInCutscene) 
+        {
+            this.active = false;
+            return;
+        }
 
         if (timeBar != null)
         {
@@ -188,6 +192,7 @@ class TimeBar extends Module
     var timeTweens:Array<FlxTween> = [];
     public function onSongStart(event:ScriptEvent)
     {
+        if (game.isInCutscene) return;
         if (!doFading) return;
 		timeTweens.push(FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
 		timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
@@ -197,6 +202,8 @@ class TimeBar extends Module
     var noUpdate:Bool = false;
     public function onUpdate(event:UpdateScriptEvent)
     {
+        if (game == null) return;
+        if (game.isInCutscene) return;
         if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
             timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
 

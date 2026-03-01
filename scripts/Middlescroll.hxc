@@ -32,8 +32,6 @@ class Middlescroll extends Module
     var oppStrums:Strumline;
     var playerStrums:Strumline;
 
-    var isActive:Bool = false;
-
     public function new()
     {
         super("Enable Middlescroll - Char HUD");
@@ -45,6 +43,12 @@ class Middlescroll extends Module
         enabled = getEnabled();
         oppStrums = game.opponentStrumline;
         playerStrums = game.playerStrumline;
+        if (game.isInCutscene) 
+        {
+            this.active = false;
+            enabled = false; // Force this off for winter-horrorland n shi.}
+        }
+        if (!enabled) return;
 
 
         if (enabled)
@@ -62,6 +66,7 @@ class Middlescroll extends Module
     var moveTween2:FlxTween;
     public function onSongStart(e:ScriptEvent)
     {
+        if (!enabled) return;
         if (moveTween2 != null) moveTween2.cancel();
         if (enabled) {
             // Repositions the strum notes, does not affect the oncoming notes for some reason.

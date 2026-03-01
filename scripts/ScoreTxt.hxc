@@ -107,8 +107,12 @@ class ScoreTxt extends Module
         checkSettings();
         game = PlayState.instance;
 
-        if (game.isInCutscene) return;
-
+        if (game.isInCutscene)
+        {
+            this.active = false;
+            return;
+        }
+        
         game.scoreText.visible = false;
 
         if (scoreTxt != null) scoreTxt.destroy();
@@ -160,11 +164,13 @@ class ScoreTxt extends Module
 
     public function onSongStart(event:ScriptEvent)
     {
+        if (game.isInCutscene) return;
         if (doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 1}, 0.5, {ease: FlxEase.linear});
     }
 
     function updateScore()
     {
+        if (game.isInCutscene) return;
         if (scoreTxt != null)
         {
             updateAccuracy();

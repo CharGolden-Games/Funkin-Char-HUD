@@ -1,0 +1,24 @@
+import funkin.modding.module.Module;
+import funkin.modding.module.ModuleHandler;
+import funkin.play.PlayState;
+
+class GlobalScript extends Module
+{
+    public function new()
+    {
+        super("Char HUD Script Handler");
+    }
+
+    public function onCountdownStart(event:CountdownScriptEvent) 
+    {
+        game = PlayState.instance;
+        if (!game.isInCutscene)
+        {
+            ModuleHandler.activateModule('TimeBar - Char HUD');
+            ModuleHandler.activateModule('ScoreTXT - Char HUD');
+            ModuleHandler.activateModule('Judgement Text - Char HUD');
+            ModuleHandler.activateModule("Enable Middlescroll - Char HUD");
+            ModuleHandler.activateModule("Keystrokes - Universe Engine Base Funkin' Port");
+        }
+    }
+}

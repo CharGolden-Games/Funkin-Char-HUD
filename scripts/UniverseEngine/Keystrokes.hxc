@@ -71,7 +71,12 @@ class KeyStrokes extends Module
         game = PlayState.instance;
         disabled = false;
 
-        if (game.isInCutscene) disabled = true;
+        if (game.isInCutscene) 
+        {
+            disabled = true;
+            this.active = false;
+            return;
+        }
 
         if (left != null) left.destroy();
         if (down != null) down.destroy();

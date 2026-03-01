@@ -1,10 +1,11 @@
 {
     "useVSCharColors": false,
-    "vsCharHUD": true,
+    "vsCharHUD": false,
     "simpleRatings": false,
     "includeTiming": false,
     "doFading": true,
     "badsShitsHurt": false,
     "playGhostAnim": true,
-    "resetInStoryMode": false
+    "resetInStoryMode": false,
+    "middlescroll": false
 }

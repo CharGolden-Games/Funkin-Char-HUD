@@ -76,7 +76,11 @@ class JudgementText extends Module
         checkSettings();
         getOffsets();
         game = PlayState.instance;
-        if (game.isInCutscene) return;
+        if (game.isInCutscene) 
+        {
+            this.active = false;
+            return;
+        }
         
         if (textTween != null)
         {
@@ -175,6 +179,7 @@ class JudgementText extends Module
     public function onUpdate(event:UpdateScriptEvent)
     {
         if (game == null) return;
+        if (game.isInCutscene) return;
         if (Highscore.tallies.combo > maxCombo)
         {
             maxCombo = Highscore.tallies.combo;
@@ -209,6 +214,7 @@ class JudgementText extends Module
 
     public function onSongStart(event:ScriptEvent)
     {
+        if (game.isInCutscene) return;
         if (doFading) textTween = FlxTween.tween(judgeText, {alpha: 1}, 0.5, {ease: FlxEase.linear});
     }
 
