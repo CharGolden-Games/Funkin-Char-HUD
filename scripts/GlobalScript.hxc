@@ -4,6 +4,13 @@ import funkin.play.PlayState;
 
 class GlobalScript extends Module
 {
+    var ids:Array<String> = [
+            'TimeBar - Char HUD',
+            'ScoreTXT - Char HUD',
+            'Judgement Text - Char HUD',
+            "Enable Middlescroll - Char HUD",
+            "Keystrokes - Universe Engine Base Funkin' Port"
+    ];
     public function new()
     {
         super("Char HUD Script Handler");
@@ -14,11 +21,10 @@ class GlobalScript extends Module
         game = PlayState.instance;
         if (!game.isInCutscene)
         {
-            ModuleHandler.activateModule('TimeBar - Char HUD');
-            ModuleHandler.activateModule('ScoreTXT - Char HUD');
-            ModuleHandler.activateModule('Judgement Text - Char HUD');
-            ModuleHandler.activateModule("Enable Middlescroll - Char HUD");
-            ModuleHandler.activateModule("Keystrokes - Universe Engine Base Funkin' Port");
+            for (id in ids)
+            {
+                ModuleHandler.activateModule(id);
+            }
         }
     }
 }
