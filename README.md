@@ -1,4 +1,4 @@
-# Char's HUD - A HUD Mod for Funkin' 0.6!
+# Char's HUD - A HUD Mod for Funkin' 0.6.x!
 
 ## You can download the code and it will still work just as well as the releases.
 
