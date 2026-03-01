@@ -1,0 +1,134 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.util.FlxStringUtil;
+import flixel.util.FlxTimer;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+import funkin.ui.freeplay.FreeplayState;
+import funkin.Preferences;
+import funkin.play.notes.Strumline;
+
+import StringTools;
+
+class Middlescroll extends Module
+{
+    var enabled:Bool = true;
+    var game:PlayState;
+    var oppStrums:Strumline;
+    var playerStrums:Strumline;
+
+    var isActive:Bool = false;
+
+    public function new()
+    {
+        super("Enable Middlescroll - Char HUD");
+    }
+
+    public function onCountdownStart(event:CountdownScriptEvent)
+    {
+        game = PlayState.instance;
+        enabled = getEnabled();
+        oppStrums = game.opponentStrumline;
+        playerStrums = game.playerStrumline;
+
+
+        if (enabled)
+        {
+            playerStrums.setNoteSpacing(1.2);
+            oppStrums.strumlineScale.set(0.4, 0.4);
+            oppStrums.screenCenter(0x01);
+            oppStrums.x = 10000000000;
+        }
+    }
+
+    // Working on opp notes
+    var funnyTween:FlxTween;
+    var moveTween:FlxTween;
+    var moveTween2:FlxTween;
+    public function onSongStart(e:ScriptEvent)
+    {
+        if (moveTween2 != null) moveTween2.cancel();
+        if (enabled) {
+            // Repositions the strum notes, does not affect the oncoming notes for some reason.
+            /* var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
+            note.alpha = 0.5;
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
+            note.alpha = 0.5;
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
+            note.x += 550;
+            note.alpha = 0.5;
+            oppStrums.noteStyle.applyStrumlineOffsets(note);
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
+            note.x += 550;
+            note.alpha = 0.5;
+            oppStrums.noteStyle.applyStrumlineOffsets(note); */
+
+            var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
+            FlxTween.cancelTweensOf(note);
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
+            FlxTween.cancelTweensOf(note);
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
+            FlxTween.cancelTweensOf(note);
+            note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
+            FlxTween.cancelTweensOf(note);
+
+            oppStrums.screenCenter(0x01);
+            oppStrums.alpha = 0;
+
+            if (!allowTween())
+            {
+                oppStrums.alpha = 0.5;
+                oppStrums.y = playerStrums.y + 200;
+                oppStrums.x -= 500;
+                playerStrums.x = (FlxG.width - playerStrums.width) / 2;
+            }
+            else
+            {
+                if (funnyTween != null) funnyTween.cancel();
+                if (moveTween != null) moveTween.cancel();
+                funnyTween = FlxTween.tween(oppStrums, {alpha: 0.5}, 0.4);
+                moveTween = FlxTween.tween(oppStrums, {y: playerStrums.y + 200, x: oppStrums.x - 500}, 0.4, {ease: FlxEase.expoOut});
+                moveTween2 = FlxTween.tween(playerStrums, {x: (FlxG.width - playerStrums.width) / 2}, 0.4, {ease: FlxEase.expoOut});
+            }
+            oppStrums.visible = true;
+        }
+        else
+        {
+            if (!allowTween())
+                playerStrums.x = FlxG.width - playerStrums.width;
+            else
+                moveTween2 = FlxTween.tween(playerStrums, {x: FlxG.width - playerStrums.width}, 0.4, {ease: FlxEase.expoOut});
+        }
+    }
+
+    public function getEnabled():Bool
+    {
+        var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+        if (settings.middlescroll != null) return settings.middlescroll;
+
+        return false;
+    }
+
+    public function allowTween():Bool
+    {
+        var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+        if (settings.doFading != null) return settings.doFading;
+
+        return false;
+    }
+}

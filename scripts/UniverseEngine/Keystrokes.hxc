@@ -54,8 +54,12 @@ class KeyStrokes extends Module
         }
         else
         {
-            if (name.toLowerCase() == 'hud' || name.toLowerCase() == 'other')
+            if (name.toLowerCase() == 'hud')
                 return game.camHUD;
+            else if (name.toLowerCase() == "other" || name.toLowerCase() == "cutouts")
+                return game.camCutouts
+            else if (name.toLowerCase() == "subtitles")
+                return game.camSubtitles;
             else
                 return game.camGame;
         }
@@ -79,10 +83,10 @@ class KeyStrokes extends Module
         add(up = new FlxSprite(baseX, (baseY) + globalYOffset).makeGraphic(44, 44, 0xFF12FA05));
         add(right = new FlxSprite(baseX + 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFFF9393F));
 
-        left.cameras = [getCamera('hud')];
-        down.cameras = [getCamera('hud')];
-        up.cameras = [getCamera('hud')];
-        right.cameras = [getCamera('hud')];
+        left.cameras = [getCamera('other')];
+        down.cameras = [getCamera('other')];
+        up.cameras = [getCamera('other')];
+        right.cameras = [getCamera('other')];
 
         left.alpha = 0.3;
         down.alpha = 0.3;

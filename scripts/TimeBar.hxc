@@ -31,6 +31,7 @@ class TimeBar extends Module
     var game:PlayState = null;
     var globalYOffset:Int = 0;    // change this to change how high the timeBar appears.
     var globalXOffset:Int = 0;    // change this to change how far right the timeBar appears.
+    var disabled:Bool = false;
 
     public function new()
     {

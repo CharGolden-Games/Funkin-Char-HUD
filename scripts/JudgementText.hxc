@@ -18,6 +18,8 @@ import funkin.play.PlayState;
 import funkin.play.PlayStatePlaylist as SongPlaylist;
 import funkin.ui.freeplay.FreeplayState;
 
+import StringTools;
+
 class JudgementText extends Module
 {
     var game:PlayState = null;
@@ -67,6 +69,7 @@ class JudgementText extends Module
     var resetInStoryMode:Bool = false; // if true, makes the text reset on every song reload regardless of if it's in story mode.
     var lastSongID:String = "";
     var lastRatings:Array<Int> = [0,0,0,0,0,0,0,0];
+    final defaultLRatings:Array<Int> = [0,0,0,0,0,0,0,0];
 
     public function onCountdownStart(event:CountdownScriptEvent)
     {
@@ -131,6 +134,15 @@ class JudgementText extends Module
             judgeText = null;
         }
         
+        var stageID:String = game.currentStageId;
+        var font:String = "vcr.ttf";
+        var size:Int = 16;
+
+        if (StringTools.startsWith(stageID, "school"))
+        {
+            font = "pixel.otf";
+            size = 12;
+        }
         judgeText = new FlxText(0, 0, 0, 'Sicks: 0\nGoods: 0\nBads: 0\nShits: 0\nMax Combo: 0');
         if (!simpleRatings)
         {
@@ -150,13 +162,13 @@ class JudgementText extends Module
                 else if (bads == 0 && shits == 0 && misses == 0) judgeText.text += ' (Perfect)';
             }
         }
-        judgeText.setFormat(Paths.font('vcr.ttf'), 16, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        judgeText.setFormat(Paths.font(font), size, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         judgeText.borderSize = 2;
-        judgeText.cameras = [game.camHUD];
+        judgeText.cameras = [game.camCutouts];
         game.add(judgeText);
         judgeText.screenCenter(0x10);
         judgeText.x += globalXOffset;
-        judgeText.y += globalYOffset;
+        judgeText.y += 40 + globalYOffset;
         judgeText.alpha = doFading ? 0 : 1;
     }
 
