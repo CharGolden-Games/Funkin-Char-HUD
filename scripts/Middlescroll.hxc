@@ -28,9 +28,15 @@ import StringTools;
 class Middlescroll extends Module
 {
     var enabled:Bool = true;
+    var wasStarted:Bool = false;
     var game:PlayState;
     var oppStrums:Strumline;
     var playerStrums:Strumline;
+    var songID:String;
+    var defaultPos:Array<Array<Int>> = [
+        [48, 24],
+        [688, 24]
+    ];
 
     public function new()
     {
@@ -43,6 +49,7 @@ class Middlescroll extends Module
         enabled = getEnabled();
         oppStrums = game.opponentStrumline;
         playerStrums = game.playerStrumline;
+        songID = game.currentSong.id;
         if (game.isInCutscene) 
         {
             this.active = false;
@@ -50,13 +57,53 @@ class Middlescroll extends Module
         }
         if (!enabled) return;
 
-
         if (enabled)
         {
             playerStrums.setNoteSpacing(1.2);
-            oppStrums.strumlineScale.set(0.4, 0.4);
-            oppStrums.screenCenter(0x01);
-            oppStrums.x = 10000000000;
+            if (songID != "stress"){
+                oppStrums.strumlineScale.set(0.4, 0.4);
+                oppStrums.screenCenter(0x01);
+                oppStrums.x = 10000000000;
+            }
+            else
+            {
+                
+                oppStrums.strumlineScale.set(1, 1);
+                oppStrums.alpha = 1;
+                oppStrums.x = defaultPos[0][0];
+                oppStrums.y = defaultPos[0][1];
+                playerStrums.x = defaultPos[1][0];
+                playerStrums.y = defaultPos[1][1];
+            }
+        }
+    }
+    
+    public function onSongRetry(event:ScriptEvent)
+    {
+        if (enabled && songID == "stress")
+        {
+                if (wasStarted)
+                {
+                    var note = playerStrums.getByDirection(Strumline.DIRECTIONS[0]);
+                    FlxTween.cancelTweensOf(note);
+                    note = playerStrums.getByDirection(Strumline.DIRECTIONS[1]);
+                    FlxTween.cancelTweensOf(note);
+                    note = playerStrums.getByDirection(Strumline.DIRECTIONS[2]);
+                    FlxTween.cancelTweensOf(note);
+                    note = playerStrums.getByDirection(Strumline.DIRECTIONS[3]);
+                    FlxTween.cancelTweensOf(note);
+
+                    var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
+                    FlxTween.cancelTweensOf(note);
+                    note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
+                    FlxTween.cancelTweensOf(note);
+                    note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
+                    FlxTween.cancelTweensOf(note);
+                    note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
+                    FlxTween.cancelTweensOf(note);
+
+                    wasStarted = false;
+                }
         }
     }
 
@@ -64,8 +111,10 @@ class Middlescroll extends Module
     var funnyTween:FlxTween;
     var moveTween:FlxTween;
     var moveTween2:FlxTween;
+    var scaleTween:FlxTween;
     public function onSongStart(e:ScriptEvent)
     {
+        wasStarted = true;
         if (!enabled) return;
         if (moveTween2 != null) moveTween2.cancel();
         if (enabled) {
@@ -92,13 +141,12 @@ class Middlescroll extends Module
             note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
             FlxTween.cancelTweensOf(note);
 
-            oppStrums.screenCenter(0x01);
-            oppStrums.alpha = 0;
+            if (songID != "stress") oppStrums.alpha = 0;
 
             if (!allowTween())
             {
                 oppStrums.alpha = 0.5;
-                oppStrums.y = playerStrums.y + 200;
+                oppStrums.y = playerStrums.y + get_offset();
                 oppStrums.x -= 500;
                 playerStrums.x = (FlxG.width - playerStrums.width) / 2;
             }
@@ -107,8 +155,14 @@ class Middlescroll extends Module
                 if (funnyTween != null) funnyTween.cancel();
                 if (moveTween != null) moveTween.cancel();
                 funnyTween = FlxTween.tween(oppStrums, {alpha: 0.5}, 0.4);
-                moveTween = FlxTween.tween(oppStrums, {y: playerStrums.y + 200, x: oppStrums.x - 500}, 0.4, {ease: FlxEase.expoOut});
+                moveTween = FlxTween.tween(oppStrums, {y: playerStrums.y + get_offset(), x: ((FlxG.width - 180) / 2) - 500}, 0.4, {ease: FlxEase.expoOut});
                 moveTween2 = FlxTween.tween(playerStrums, {x: (FlxG.width - playerStrums.width) / 2}, 0.4, {ease: FlxEase.expoOut});
+                if (songID == "stress")
+                {
+                    if (scaleTween != null) scaleTween.cancel();
+
+                    scaleTween = FlxTween.tween(oppStrums.strumlineScale, {x: 0.4, y: 0.4}, 0.4, {ease: FlxEase.expoOut});
+                }
             }
             oppStrums.visible = true;
         }
@@ -135,5 +189,13 @@ class Middlescroll extends Module
         if (settings.doFading != null) return settings.doFading;
 
         return false;
+    }
+
+    public function get_offset():Int
+    {
+        if (Preferences.downscroll)
+            return -200
+        else
+            return 200;   
     }
 }
