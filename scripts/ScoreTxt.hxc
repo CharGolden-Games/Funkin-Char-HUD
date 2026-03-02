@@ -112,7 +112,7 @@ class ScoreTxt extends Module
             this.active = false;
             return;
         }
-        
+
         game.scoreText.visible = false;
 
         if (scoreTxt != null) scoreTxt.destroy();
@@ -133,11 +133,15 @@ class ScoreTxt extends Module
         var stageID:String = game.currentStageId;
         var font:String = "vcr.ttf";
         var size:Int = 18;
+        if (!vsCharHUD)
+            size = 20;
 
         if (StringTools.startsWith(stageID, "school"))
         {
             font = "pixel.otf";
             size = 14;
+            if (!vsCharHUD)
+                size = 16;
         }
         if (!vsCharHUD)
         {
@@ -146,8 +150,6 @@ class ScoreTxt extends Module
         scoreTxt = new FlxText(0, game.scoreText.y, FlxG.width, scoreString);
         scoreTxt.setFormat(Paths.font(font), size, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         scoreTxt.borderSize = 2;
-        if (!vsCharHUD)
-            scoreTxt.size = 20;
         scoreTxt.scrollFactor.set();
         scoreTxt.zIndex = 1002;
         game.add(scoreTxt);

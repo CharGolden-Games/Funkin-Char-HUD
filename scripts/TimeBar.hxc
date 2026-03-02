@@ -26,6 +26,8 @@ import funkin.Conductor;
 import funkin.graphics.FunkinSprite;
 import funkin.Paths;
 
+import StringTools;
+
 class TimeBar extends Module
 {
     var game:PlayState = null;
@@ -111,8 +113,18 @@ class TimeBar extends Module
         timeBar.createFilledBar(colors[0], colors[1]);
         timeBar.alpha = doFading ? 0 : 1;
 
-        timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', 25);
-        timeTxt.setFormat(Paths.font('vcr.ttf'), 25, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        var stageID:String = game.currentStageId;
+        var font:String = "vcr.ttf";
+        var size:Int = 25;
+
+        if (StringTools.startsWith(stageID, "school"))
+        {
+            font = "pixel.otf";
+            size = 21;
+        };
+
+        timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', size);
+        timeTxt.setFormat(Paths.font(font), size, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
         timeTxt.scrollFactor.set();
         timeTxt.zIndex = 999;
         timeTxt.alpha = doFading ? 0 : 1;
