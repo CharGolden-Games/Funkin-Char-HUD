@@ -66,6 +66,7 @@ class ScoreTxt extends Module
     var simpleRatings:Bool = false;
     var includeTimings:Bool = false;
     var doFading:Bool = false;
+    var useVSCharColors:Bool = false;
     var badsShitsHurt:Bool = false;
     var playGhostAnim:Bool = true;
 
@@ -148,7 +149,12 @@ class ScoreTxt extends Module
             scoreString = 'Score: 0 | Misses: 0 | Rating: ?';
         }
         scoreTxt = new FlxText(0, game.scoreText.y, FlxG.width, scoreString);
-        scoreTxt.setFormat(Paths.font(font), size, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        scoreTxt.setFormat(Paths.font(font), size, 0xFF25B5EB, "center", FlxTextBorderStyle.OUTLINE, 0xFF251E6C);
+        if (!useVSCharColors)
+        {
+            scoreTxt.color = 0xFFFFFFFF;
+            scoreTxt.borderColor = 0xFF000000;
+        }
         scoreTxt.borderSize = 2;
         scoreTxt.scrollFactor.set();
         scoreTxt.zIndex = 1002;
@@ -187,13 +193,13 @@ class ScoreTxt extends Module
                 if (fcString == 'Clear')
                     addition = ' (Actually you fucking REEK!)';
             }
-            var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(game.songScore, false) 
+            var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(Math.floor(game.songScore), false) 
             + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
             + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
 
             if (!vsCharHUD)
             {
-                scoreString = 'Score: ' + Std.string(game.songScore) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
+                scoreString = 'Score: ' + Std.string(FlxStringUtil.formatMoney(Math.floor(game.songScore), false)) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
             }
             scoreTxt.text = scoreString;
 
@@ -220,6 +226,7 @@ class ScoreTxt extends Module
             doFading = false;
             badsShitsHurt = false;
             playGhostAnim = true;
+            useVSCharColors = false;
         }
         else
         {
@@ -233,6 +240,7 @@ class ScoreTxt extends Module
                 doFading = settings.doFading;
                 badsShitsHurt = settings.badsShitsHurt;
                 playGhostAnim = settings.playGhostAnim;
+                useVSCharColors = settings.useVSCharColors;
             }
             catch(e:Dynamic)
             {
@@ -244,6 +252,7 @@ class ScoreTxt extends Module
                 doFading = false;
                 badsShitsHurt = false;
                 playGhostAnim = true;
+                useVSCharColors = false;
             }
         }
     }
@@ -360,9 +369,9 @@ class ScoreTxt extends Module
 
     function getRandomHealth()
     {
-        var intHundo:Int = FlxG.random.int(-200, 200);
+        var intHundo:Int = FlxG.random.int(-50, 50);
 
-        var newHealth:Float = game.health + intHundo / 100;
+        var newHealth:Float = game.health + intHundo / 200;
         trace(newHealth);
         if (newHealth >= 0) newHealth = 0.1;
         //game.health = newHealth;

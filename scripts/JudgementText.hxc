@@ -66,6 +66,7 @@ class JudgementText extends Module
     // Settings
     var simpleRatings:Bool = false;
     var doFading:Bool = false; 
+    var useVSCharColors:Bool = false;
     var resetInStoryMode:Bool = false; // if true, makes the text reset on every song reload regardless of if it's in story mode.
     var lastSongID:String = "";
     var lastRatings:Array<Int> = [0,0,0,0,0,0,0,0];
@@ -166,7 +167,12 @@ class JudgementText extends Module
                 else if (bads == 0 && shits == 0 && misses == 0) judgeText.text += ' (Perfect)';
             }
         }
-        judgeText.setFormat(Paths.font(font), size, 0xFFFFFFFF, "left", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        judgeText.setFormat(Paths.font(font), size, 0xFF25B5EB, "left", FlxTextBorderStyle.OUTLINE, 0xFF251E6C);
+        if (!useVSCharColors)
+        {
+            judgeText.color = 0xFFFFFFFF;
+            judgeText.borderColor = 0xFF000000;
+        }
         judgeText.borderSize = 2;
         judgeText.cameras = [game.camCutouts];
         game.add(judgeText);
@@ -249,6 +255,7 @@ class JudgementText extends Module
                 simpleRatings = false;
                 doFading = false;
                 resetInStoryMode = false;
+                useVSCharColors = false;
             }
             else
             {
@@ -259,6 +266,7 @@ class JudgementText extends Module
                     simpleRatings = settings.simpleRatings;
                     doFading = settings.doFading;
                     resetInStoryMode = settings.resetInStoryMode;
+                    useVSCharColors = settings.useVSCharColors;
                 }
                 catch(e:Dynamic)
                 {
@@ -267,6 +275,7 @@ class JudgementText extends Module
                     simpleRatings = false;
                     doFading = false;
                     resetInStoryMode = false;
+                    useVSCharColors = false;
                 }
             }
         }

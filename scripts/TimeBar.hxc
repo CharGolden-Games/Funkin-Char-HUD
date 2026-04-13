@@ -108,7 +108,7 @@ class TimeBar extends Module
         var colors:Array<Int> = [0xFF000000, 0xFFFFFFFF];
         if (vsCharColors)
         {
-            colors = [0xFFEE6285, 0xFFFFAA44];
+            colors = [0xFFB02B1C, 0xFFE6B72B];
         }
         timeBar.createFilledBar(colors[0], colors[1]);
         timeBar.alpha = doFading ? 0 : 1;
@@ -125,6 +125,11 @@ class TimeBar extends Module
 
         timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', size);
         timeTxt.setFormat(Paths.font(font), size, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        if (vsCharColors)
+        {
+            timeTxt.color = 0xFF2DE358;
+            timeTxt.borderColor = 0xFF1C374F;
+        }
         timeTxt.scrollFactor.set();
         timeTxt.zIndex = 999;
         timeTxt.alpha = doFading ? 0 : 1;

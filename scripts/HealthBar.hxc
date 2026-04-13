@@ -1,6 +1,5 @@
 // Flixel
 import flixel.text.FlxText;
-import flixel.text.FlxText;
 import flixel.text.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -26,12 +25,14 @@ typedef HBColor = {
     var affects:Array<String>;
     var color:String;
     @:optional var altColor:String; // if this is defined, randomly uses this color instead.
+    @:optional var comment:String; // does nothing.
 }
 
 class HealthBar extends Module
 {
     var hbColors:Array<HBColor> = [];
     var game:PlayState;
+    var printCharJson:Bool = false; // Debug thing.
     public function new()
     {
         super('Healthbar Colors - Char HUD');
@@ -94,6 +95,26 @@ class HealthBar extends Module
         if (color == null)
         {
             // The following happens if instead you have a character that's in the json.
+            if (StringTools.contains(charJson, "-player") || StringTools.contains(charJson, "-playable") || StringTools.contains(charJson, "-dark"))
+            {
+                // Base game shi-
+                charJson = charJson.split("-player").join("").split("-playable").join("").split("-dark").join("");
+            }
+
+            if (StringTools.contains(charJson, "-spooky") || StringTools.contains(charJson, "-purple")) // Spooky Mix 
+                charJson = charJson.split("-spooky").join("").split("-purple").join("");
+
+            if (StringTools.contains("-pixel") && (!StringTools.startsWith("bf") && !StringTools.startsWith("gf")))
+                charJson.split("-pixel").join("");
+            
+            if (StringTools.contains("-nonsense"))
+                charJson = charJson.split("-nonsense").join(""); // A Nonsensical Friday Night V1.5
+
+            var offset:Int = 0;
+            if (isPlayer) offset = 30;
+            var text = new FlxText(0, offset, 0, charJson, 20);
+            text.cameras = [game.camHUD];
+            if (printCharJson) game.add(text); 
             for (color in hbColors)
             {
                 for (affects in color.affects)

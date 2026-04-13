@@ -18,14 +18,22 @@ import funkin.Highscore;
 import funkin.modding.module.Module;
 import funkin.play.PlayState;
 import funkin.Conductor;
+import funkin.util.EaseUtil;
+import funkin.play.notes.notestyle.NoteStyle;
 
 import StringTools;
 
 class HitText extends Module
 {
     var game:PlayState;
+    var noteStyle:NoteStyle;
     var globalYOffset:Int = 0;    // change this to change how high the hitText appears.
     var globalXOffset:Int = 0;    // change this to change how far right the hitText appears.
+    var noStacking:Bool = false;
+    var hitText:FlxText;
+    var textTween:FlxTween;
+    var debugPreview:Bool = false;
+
     public function new()
     {
         super('Hit Text - Char HUD');
@@ -35,13 +43,176 @@ class HitText extends Module
     public function onCountdownStart(event:CountdownScriptEvent)
     {
         game = PlayState.instance;
+
+        noteStyle = game.currentChart.noteStyle;
+
+        if (debugPreview)
+        {
+            stickyTime('sick', 0);
+            stickyTime('good', 89);
+            stickyTime('bad', 134);
+            stickyTime('shit', 159);
+            stickyTime('miss', 160);
+        }
     }
 
     var textTween:FlxTween;
+    var grpTexts:Array<FlxText> = [];
+    var grpTweens:Array<FlxTween> = [];
     public function onNoteHit(event:HitNoteScriptEvent)
     {
         getOffsets();
+        
         if (event.judgement != 'perfect')
+        {
+            popUpTime(event.judgement, event.hitDiff);
+        }
+    }
+
+    function stickyTime(judgement:String, hitDiff:Float)
+    {
+
+                var funnyText = new FlxText(0, 0, 0, '? ms', 22);
+                funnyText.color = 0xFF222222;
+                funnyText.alpha = 0;
+                funnyText.cameras = [game.camHUD];
+                funnyText.screenCenter();
+                funnyText.borderStyle = FlxTextBorderStyle.OUTLINE;
+                funnyText.borderColor = 0xFF000000;
+                funnyText.borderSize = 3;
+
+                funnyText.alpha = 1;
+                funnyText.text = Std.string(hitDiff) + ' ms';
+                switch (judgement)
+                {
+                    case 'sick':
+                        funnyText.color = 0xFF2DE358;
+                        funnyText.borderColor = 0xFF1C374F;
+                        funnyText.x -= 175;
+                    case 'good':
+                        funnyText.color = 0xFF25B5EB;
+                        funnyText.borderColor = 0xFF251E6C;
+                        funnyText.x -= 100;
+                    case 'bad':
+                        funnyText.color = 0xFFE6B72B;
+                        funnyText.borderColor = 0xFFB02B1C;
+                    case 'shit':
+                        funnyText.color = 0xFFDC3834;
+                        funnyText.borderColor = 0xFF4B1232;
+                        funnyText.x += 100;
+                    case 'miss':
+                        funnyText.color = 0xFFA244D5;
+                        funnyText.borderColor = 0xFF242966;
+                        funnyText.text = "inf ms";
+                        funnyText.x += 200;
+                }
+                game.add(funnyText);
+                grpTexts.push(funnyText);
+    }
+
+    function popUpTime(judgement:String, hitDiff:Float)
+    {
+
+            var easeType = FlxEase.linear;
+            var alphaTime:Float = 0.8;
+            if (noteStyle.toLowerCase() == "pixel")
+            {
+                easeType = EaseUtil.stepped(2);
+                alphaTime = 0.4;
+            }
+            if (noStacking)
+            {
+                if (textTween != null)
+                    textTween.cancel();
+
+                if (hitText != null)
+                    hitText.destroy();
+                    
+                hitText = new FlxText(0, 0, 0, '-ms', 16);
+                hitText.color = 0xFF222222;
+                hitText.alpha = 0;
+                hitText.cameras = [game.camHUD];
+                hitText.screenCenter();
+                hitText.x += (-200) + globalXOffset;
+                hitText.y += globalYOffset;
+                hitText.borderStyle = FlxTextBorderStyle.OUTLINE;
+                hitText.borderColor = 0xFF000000;
+                hitText.borderSize = 3;
+
+                hitText.alpha = 1;
+                hitText.text = Std.string(hitDiff) + 'ms';
+                switch (judgement)
+                {
+                    case 'sick':
+                        hitText.color = 0xFF2DE358;
+                        hitText.borderColor = 0xFF1C374F;
+                    case 'good':
+                        hitText.color = 0xFF25B5EB;
+                        hitText.borderColor = 0xFF251E6C;
+                    case 'bad':
+                        hitText.color = 0xFFE6B72B;
+                        hitText.borderColor = 0xFFB02B1C;
+                    case 'shit':
+                        hitText.color = 0xFFDC3834;
+                        hitText.borderColor = 0xFF4B1232;
+                    case 'miss':
+                        hitText.color = 0xFFA244D5;
+                        hitText.borderColor = 0xFF242966;
+                        hitText.text = "inf ms";
+                }
+                textTween = FlxTween.tween(hitText, {alpha: 0}, alphaTime, {ease: easeType, onComplete: function(twn:FlxTween){hitText.destroy();}});
+                game.add(hitText);
+            }
+            else
+            {
+                var funnyText = new FlxText(0, 0, 0, '? ms', 22);
+                funnyText.color = 0xFF222222;
+                funnyText.alpha = 0;
+                funnyText.cameras = [game.camHUD];
+                funnyText.screenCenter();
+                funnyText.x += (-350) + globalXOffset;
+                funnyText.y += globalYOffset;
+                funnyText.borderStyle = FlxTextBorderStyle.OUTLINE;
+                funnyText.borderColor = 0xFF000000;
+                funnyText.borderSize = 3;
+
+                funnyText.alpha = 1;
+                funnyText.text = Std.string(hitDiff) + ' ms';
+                switch (judgement)
+                {
+                    case 'sick':
+                        funnyText.color = 0xFF2DE358;
+                        funnyText.borderColor = 0xFF1C374F;
+                    case 'good':
+                        funnyText.color = 0xFF25B5EB;
+                        funnyText.borderColor = 0xFF251E6C;
+                    case 'bad':
+                        funnyText.color = 0xFFE6B72B;
+                        funnyText.borderColor = 0xFFB02B1C;
+                    case 'shit':
+                        funnyText.color = 0xFFDC3834;
+                        funnyText.borderColor = 0xFF4B1232;
+                    case 'miss':
+                        funnyText.color = 0xFFA244D5;
+                        funnyText.borderColor = 0xFF242966;
+                        funnyText.text = "inf ms";
+                }
+                var curY = funnyText.y;
+                var curX = funnyText.x;
+
+                funnyText.x += 150;
+                grpTweens.push(FlxTween.tween(funnyText, {alpha: 0}, alphaTime, {startDelay: 1, ease: easeType, onComplete: function(twn:FlxTween){funnyText.destroy();}}));
+                grpTweens.push(FlxTween.tween(funnyText, {y: curY + 50}, 1, {startDelay: 1, ease: FlxEase.circIn}));
+                grpTweens.push(FlxTween.tween(funnyText, {x: curX - 100}, 1.8, {ease: FlxEase.circIn}));
+                grpTweens.push(FlxTween.tween(funnyText, {y: curY - 100}, 1, {ease: FlxEase.quartOut}));
+                game.add(funnyText);
+                grpTexts.push(funnyText);
+            }
+    }
+
+    public function onSongRetry(event:ScriptEvent)
+    {
+        if (noStacking)
         {
             if (textTween != null)
                 textTween.cancel();
@@ -73,19 +244,41 @@ class HitText extends Module
             }
             textTween = FlxTween.tween(hitText, {alpha: 0}, 0.5, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){hitText.destroy();}});
         }
+        else
+        {
+            for (lol in grpTweens) { if (lol != null) lol.cancel();}
+            for (lol in grpTexts) { if (lol != null) lol.destroy();}
+        }
     }
 
     public function onSongRetry(event:ScriptEvent)
+    public function onNoteMiss(event:NoteScriptEvent)
     {
         if (textTween != null)
             textTween.cancel();
 
         if (hitText != null)
             hitText.destroy();
+        popUpTime('miss', 9999);
     }
 
    public function getOffsets()
    {
+        if (!Assets.exists("assets/data/vsCharHud/settings.json"))
+        {
+            noStacking = false;
+        }
+        else
+        {
+            try
+            {
+                noStacking = Json.parse(Assets.getText("assets/data/vsCharHud/settings.json")).noStacking;
+            }
+            catch(e:Dynamic)
+            {
+                noStacking = false;
+            }
+        }
         if (!Assets.exists('assets/data/hudOffsets.json'))
         {
             globalYOffset = 0;
