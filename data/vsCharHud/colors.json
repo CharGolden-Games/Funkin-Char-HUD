@@ -67,10 +67,32 @@
             "affects": [
                 "spooky",
                 "spooky-dark",
-                "spooky-playable"
+                "spooky-playable",
+                "spooky-nogreen"
             ],
             "color": "0xFFD57E00",
             "altColor": "0xFFB4B4B4"
+        },
+        {
+            "affects": [
+                "skid",
+                "skid-opponent"
+            ],
+            "color": "0xFFB4B4B4"
+        },
+        {
+            "affects": [
+                "pump",
+                "pump-opponent"
+            ],
+            "color": "0xFFD57E00"
+        },
+        {
+            "affects": [
+                "spooky-pixel"
+            ],
+            "color": "0xFFF59738",
+            "altColor": "0xFFA8A8A8"
         },
         {
             "affects": [
@@ -89,9 +111,20 @@
             "affects": [
                 "tankman",
                 "tankman-atlas",
-                "tankman-bloody"
+                "tankman-bloody",
+                "tankman2"
             ],
             "color": "0xFFFFFFFF"
+        },
+        {
+            "comment": "A Nonsensical Friday Night v1.5",
+            "affects": [
+                "nonsense",
+                "nonsense-angry",
+                "nonsense-blood",
+                "nonsense-god"
+            ],
+            "color": "0xFF94E0FF"
         },
         {
             "affects": [
@@ -99,6 +132,18 @@
                 "monster-christmas"
             ],
             "color": "0xFFF2F76E"
+        },
+        {
+            "affects": ["moloch"],
+            "color": "0xFF892D40"
+        },
+        {
+            "affects": ["ooga-booga"],
+            "color": "0xFF508753"
+        },
+        {
+            "affects": ["bf2"],
+            "color": "0xFF7951E0"
         }
     ]
 }
