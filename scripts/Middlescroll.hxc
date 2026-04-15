@@ -55,7 +55,10 @@ class Middlescroll extends Module
             this.active = false;
             enabled = false; // Force this off for winter-horrorland n shi.}
         }
-        if (!enabled) return;
+        if (!enabled) 
+        {
+            return;
+        }
 
         if (enabled)
         {
@@ -76,6 +79,33 @@ class Middlescroll extends Module
                 playerStrums.y = defaultPos[1][1];
             }
         }
+    }
+
+    function fixArrows()
+    {
+        oppStrums.strumlineScale.set(1, 1);
+        oppStrums.alpha = 1;
+        oppStrums.x = defaultPos[0][0];
+        oppStrums.y = defaultPos[0][1];
+        playerStrums.x = defaultPos[1][0];
+        playerStrums.y = defaultPos[1][1];
+        playerStrums.setNoteSpacing(1);
+    }
+
+    function fixArrowsTween()
+    {
+        if (funnyTween != null) funnyTween.cancel();
+        if (moveTween != null) moveTween.cancel();
+        if (moveTween2 != null) moveTween2.cancel();
+        if (scaleTween != null) scaleTween.cancel();
+        if (scaleTween2 != null) scaleTween2.cancel();
+
+        oppStrums.alpha = 1;
+        scaleTween = FlxTween.tween(oppStrums.strumlineScale, {x: 1, y: 1}, 0.4, {ease: FlxEase.expoOut});
+        scaleTween2 = FlxTween.tween(playerStrums.strumlineScale, {x: 1, y: 1}, 0.4, {ease: FlxEase.expoOut});
+        moveTween = FlxTween.tween(oppStrums, {y: defaultPos[0][1], x: defaultPos[0][0]}, 0.4, {ease: FlxEase.expoOut});
+        moveTween2 = FlxTween.tween(playerStrums, {x: defaultPos[1][0]}, 0.4, {ease: FlxEase.expoOut});
+        playerStrums.setNoteSpacing(1);
     }
     
     public function onSongRetry(event:ScriptEvent)
@@ -107,15 +137,48 @@ class Middlescroll extends Module
         }
     }
 
+    function cancelAllNoteTweens()
+    {
+        var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
+        FlxTween.cancelTweensOf(note);
+
+        var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
+        FlxTween.cancelTweensOf(note);
+        note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
+        FlxTween.cancelTweensOf(note);
+    }
+
     // Working on opp notes
     var funnyTween:FlxTween;
     var moveTween:FlxTween;
     var moveTween2:FlxTween;
     var scaleTween:FlxTween;
+    var scaleTween2:FlxTween;
     public function onSongStart(e:ScriptEvent)
     {
         wasStarted = true;
-        if (!enabled) return;
+        if (!enabled) 
+        {
+            if (playerStrums.alpha == 1 && playerStrums.x != defaultPos[1][0])
+            {
+                cancelAllNoteTweens();
+                if (!allowTween())
+                    fixArrows();
+                else
+                    fixArrowsTween(); // makes a tweened arrow position fix.
+            }
+            return;
+        }
         if (moveTween2 != null) moveTween2.cancel();
         if (enabled) {
             // Repositions the strum notes, does not affect the oncoming notes for some reason.
@@ -132,14 +195,7 @@ class Middlescroll extends Module
             note.alpha = 0.5;
             oppStrums.noteStyle.applyStrumlineOffsets(note); */
 
-            var note = oppStrums.getByDirection(Strumline.DIRECTIONS[0]);
-            FlxTween.cancelTweensOf(note);
-            note = oppStrums.getByDirection(Strumline.DIRECTIONS[1]);
-            FlxTween.cancelTweensOf(note);
-            note = oppStrums.getByDirection(Strumline.DIRECTIONS[2]);
-            FlxTween.cancelTweensOf(note);
-            note = oppStrums.getByDirection(Strumline.DIRECTIONS[3]);
-            FlxTween.cancelTweensOf(note);
+            cancelAllNoteTweens();
 
             if (songID != "stress") oppStrums.alpha = 0;
 
@@ -165,13 +221,6 @@ class Middlescroll extends Module
                 }
             }
             oppStrums.visible = true;
-        }
-        else
-        {
-            if (!allowTween())
-                playerStrums.x = FlxG.width - playerStrums.width;
-            else
-                moveTween2 = FlxTween.tween(playerStrums, {x: FlxG.width - playerStrums.width}, 0.4, {ease: FlxEase.expoOut});
         }
     }
 
