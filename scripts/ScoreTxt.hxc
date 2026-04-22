@@ -342,6 +342,7 @@ class ScoreTxt extends Module
         }
     }
 
+    var hasErrored:Bool = false;
     public function onNoteGhostMiss(event:GhostMissNoteScriptEvent)
     {
         event.cancel();
@@ -362,8 +363,21 @@ class ScoreTxt extends Module
         }
         if (playGhostAnim)
         {
-            game.currentStage.getBoyfriend().playAnimation(singAnim);
-            getRandomHealth();
+            try
+            {
+                game.currentStage.getBoyfriend().playAnimation(singAnim);
+                
+                hasErrored = false; // if succeeded, reset this variable.
+            }
+            catch(e:Dynamic)
+            {
+                if (!hasErrored)
+                {
+                    hasErrored = true;
+
+                    alertWindow("Invalid Access to \"playAnimation\"\nCharacter is likely modded!", "Script Error! `scripts/scoreTxt.hxc:368`");
+                }
+            }
         }
     }
 
