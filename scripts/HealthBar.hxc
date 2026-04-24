@@ -114,7 +114,7 @@ class HealthBar extends Module
             if (isPlayer) offset = 30;
             var text = new FlxText(0, offset, 0, charJson, 20);
             text.cameras = [game.camHUD];
-            if (printCharJson) game.add(text); 
+            if (printCharJson) game.add(text);            
             for (color in hbColors)
             {
                 for (affects in color.affects)

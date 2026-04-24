@@ -87,18 +87,7 @@ class JudgementText extends Module
         {
             textTween.cancel();
         }
-        if (!SongPlaylist.isStoryMode || resetInStoryMode) // This should make it correctly reflect the final rating at the end of story mode
-        {
-            totalHit = 0;
-            totalPlayed = 0;
-            sicks = 0;
-            goods = 0;
-            bads = 0;
-            shits = 0;
-            misses = 0;
-            maxCombo = 0;
-        }
-        else
+        if (PlayState.isStoryMode && !resetInStoryMode)
         {
             if (lastSongID == game.currentSong.id)
             {
@@ -132,6 +121,17 @@ class JudgementText extends Module
                 lastRatings = [totalHit, totalPlayed, sicks, goods, bads, shits, misses, maxCombo];
                 lastSongID = game.currentSong.id;
             }
+        }
+        else // This should make it correctly reflect the final rating at the end of story mode
+        {
+            totalHit = 0;
+            totalPlayed = 0;
+            sicks = 0;
+            goods = 0;
+            bads = 0;
+            shits = 0;
+            misses = 0;
+            maxCombo = 0;
         }
         if (judgeText != null)
         {

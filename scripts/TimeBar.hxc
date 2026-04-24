@@ -180,6 +180,45 @@ class TimeBar extends Module
         killShit(); // PLEASEEEEE
     }
 
+    function onBeatHit(event:SongTimeScriptEvent):Void
+    {
+        if (event.beat % 4 == 0) checkColor();
+    }
+
+    var hasErrored:Bool = false;
+    var lightColors:Array<Int> = [0xFF31A2FD, 0xFF31FD8C, 0xFFFB33F5, 0xFFFBA633, 0xFFFD4531];
+    var e_lightColors:Array<Int> = [0xFF0000A0, 0xFF1B5000, 0xFF620089, 0xFFBB6D00, 0xFF980F00];
+    var t_lightColors:Array<Int> = [0xFF305FFC, 0xFF46D200, 0xFFFB500FF, 0xFFFF9500, 0xFFFF1900];
+    public function checkColor()
+    {
+        if (game != null)
+        {
+            try
+            {
+                var stageID:String = game.currentStageId;
+                if (StringTools.startsWith(stageID, "philly"))
+                {
+                    var curLight = FlxG.random.int(0, lightColors.length - 1);
+
+                    timeBar.createFilledBar(e_lightColors[curLight], lightColors[curLight]);
+                    timeBar.updateBar();
+
+                    timeTxt.color = t_lightColors[curLight];
+                    timeTxt.borderColor = e_lightColors[curLight];
+                }
+                hasErrored = false;
+            }
+            catch(e:Dynamic)
+            {
+                if (!hasErrored)
+                {
+                    trace('Error while getting philly color: $e');
+                    hasErrored = true;
+                }
+            }
+        }
+    }
+
     function checkSettings()
     {
         if (!Assets.exists('assets/data/vsCharHud/settings.json'))

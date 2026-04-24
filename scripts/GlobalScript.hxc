@@ -1,9 +1,69 @@
 import funkin.modding.module.Module;
 import funkin.modding.module.ModuleHandler;
 import funkin.play.PlayState;
+import haxe.Json;
+import funkin.ui.options.OptionsState;
+/* 
+import flixel.FlxG;
+import flixel.FlxState;
+class SettingFile
+{
+    public var useVSCharColors:Bool = false;
+    public var vsCharHUD:Boo = false;
+    public var simpleRatings:Bool = false;
+    public var includeTiming:Bool = false;
+    public var doFading:Bool = true;
+    public var badsShitsHurt:Bool = false;
+    public var playGhostAnim:Bool = true;
+    public var resetInStoryMode:Bool = false;
+    public var middlescroll:Bool = false;
+
+    public function getSetting(name:String):Dynamic
+    {
+        return toMap().get(name);
+    }
+
+    public function setSetting(name:String, value:Dynamic)
+    {
+        switch (name)
+        {
+            case "useVSCharColors": useVSCharColors = value;
+            case "vsCharHUD": vsCharHUD = value;
+            case "simpleRatings": simpleRatings = value;
+            case "includeTiming": includeTiming = value;
+            case "doFading": doFading = value;
+            case "badsShitsHurt": badsShitsHurt = value;
+            case "playGhostAnim": playGhostAnim = value;
+            case "resetInStoryMode": resetInStoryMode = value;
+            case "middlescroll": middlescroll = value;
+        }
+    }
+
+    public function toMap():Map<String, Dynamic>
+    {
+        var map:Map<String, Dynamic> = new Map();
+
+        map.set("useVSCharColors", useVSCharColors);
+        map.set("vsCharHUD", vsCharHUD);
+        map.set("simpleRatings", simpleRatings);
+        map.set("includeTiming", includeTiming);
+        map.set("doFading", doFading);
+        map.set("badsShitsHurt", badsShitsHurt);
+        map.set("playGhostAnim", playGhostAnim);
+        map.set("resetInStoryMode", resetInStoryMode);
+        map.set("middlescroll", middlescroll);
+
+        return map;
+    }
+
+    public function new() {} // fun fact haxe requires this.
+} */
 
 class GlobalScript extends Module
 {
+    /* public static var data:SettingFile = null;
+    public static var defaultData:SettingFile = new SettingFile(); */
+
     var ids:Array<String> = [
             'TimeBar - Char HUD',
             'ScoreTXT - Char HUD',
@@ -11,6 +71,64 @@ class GlobalScript extends Module
             "Enable Middlescroll - Char HUD",
             "Keystrokes - Universe Engine Base Funkin' Port"
     ];
+
+    var options:Array<Array<Dynamic>> = [
+        [
+            "TimeBar Char Colors",
+            "When enabled, the time bar uses VS Char colors.",
+            "useVSCharColors",
+            false
+        ],
+        [
+            "VS Char ScoreTxt",
+            "Whether to use a more psych-like score text, or VS Char's",
+            "vsCharHUD",
+            false
+        ],
+        [
+            "Simple Ratings",
+            "Whether the rating should accurately reflect the Result Screen, or it should be based on ratings gotten",
+            "simpleRatings",
+            false
+        ],
+        [
+            "Include Timings",
+            "Whether the rating should take into account the the timing of when you hit notes.",
+            "includeTiming",
+            false
+        ],
+        [
+            "HUD Fades In/Out",
+            "Whether to fade the hud in/out on song start/end",
+            "doFading",
+            true
+        ],
+        [
+            "Bads/Shits Kill Combo",
+            "Self explanatory",
+            "badsShitsHurt",
+            false
+        ],
+        [
+            "Play Sing Animation On Ghost Tap",
+            "Whether pressing a key when notes aren't present plays the sing animation",
+            "playGhostAnim",
+            true
+        ],
+        [
+            "Reset Judgement Text In Story Mode",
+            "Whether the data between songs should be kept in Story Mode",
+            "resetInStoryMode",
+            false
+        ],
+        [
+            "Middlescroll",
+            'When enabled, puts the player\'s notes in the middle.',
+            "middlescroll",
+            false
+        ]
+    ];
+
     public function new()
     {
         super("Char HUD Script Handler");
@@ -27,4 +145,56 @@ class GlobalScript extends Module
             }
         }
     }
+/* 
+
+    public function onStateChangeEnd(event:ScriptEvent)
+    {
+        var currentState = FlxG.state;
+        if (Std.isOfType(currentState, OptionsState))
+        {
+            var prefsPage = currentState.optionsCodex.pages.get("preferences");
+            for (item in options)
+            {
+                prefsPage.createPrefItemCheckbox(item[0], item[1], function(value:Bool) {updateSetting(item[2], value);}, getSetting(item[2], item[3]));
+            }
+        }
+    }
+
+    public function addOption(prefState:FlxState, name:String)
+
+    function determineModPath():String
+    {
+        for (path in FileSystem.readDirectory("mods/"))
+        {
+            //if (FileSystem.exists('mods/$path/isVsCharPack')) return 'mods/$path/';
+        }
+
+        return null;
+    }
+
+    function updateSetting(name:String, value:Dynamic)
+    {
+        var settings:SettingFile = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+        switch (name)
+        {
+            case "useVSCharColors": settings.useVSCharColors = value;
+            case "vsCharHUD": settings.vsCharHUD = value;
+            case "simpleRatings": settings.simpleRatings = value;
+            case "includeTiming": settings.includeTiming = value;
+            case "doFading": settings.doFading = value;
+            case "badsShitsHurt": settings.badsShitsHurt = value;
+            case "playGhostAnim": settings.playGhostAnim = value;
+            case "resetInStoryMode": settings.resetInStoryMode = value;
+            case "middlescroll": settings.middlescroll = value;
+        }
+
+        // File.saveContent(determineModPath() + 'data/vsCharHud/settings.json', Json.stringify(settings, null, "\t"));
+    }
+
+    function getSetting(name:String, defaultValue:Bool = false):Bool
+    {
+        if (data == null) data = new SettingFile();
+
+        return defaultValue;
+    } */
 }

@@ -38,6 +38,11 @@ class KeyStrokes extends Module
 
     var disabled:Bool = false;
 
+    public function new()
+    {
+        super("Universe Engine HUD - Keystrokes");
+    }
+
     function add(o:FlxBasic):FlxBasic
     {
         if (game != null) 

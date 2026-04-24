@@ -375,7 +375,7 @@ class ScoreTxt extends Module
                 {
                     hasErrored = true;
 
-                    alertWindow("Invalid Access to \"playAnimation\"\nCharacter is likely modded!", "Script Error! `scripts/scoreTxt.hxc:368`");
+                    trace("Invalid Access to \"playAnimation\"\nCharacter is likely modded!");
                 }
             }
         }
