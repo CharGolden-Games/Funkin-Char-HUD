@@ -32,7 +32,7 @@ class HitText extends Module
     var noStacking:Bool = false;
     var hitText:FlxText;
     var textTween:FlxTween;
-    var debugPreview:Bool = false;
+    var debugPreview:Bool = false; // Note to self, set to false when uploading.
 
     public function new()
     {
@@ -47,11 +47,11 @@ class HitText extends Module
 
         if (debugPreview)
         {
-            stickyTime('sick', 0);
+            /* stickyTime('sick', 0);
             stickyTime('good', 89);
             stickyTime('bad', 134);
             stickyTime('shit', 159);
-            stickyTime('miss', 160);
+            stickyTime('miss', 160); */
         }
     }
 
@@ -110,9 +110,17 @@ class HitText extends Module
 
     function popUpTime(judgement:String, hitDiff:Float)
     {
-
             var easeType = FlxEase.linear;
-            var alphaTime:Float = 0.8;
+            var alphaTime:Float = 0.8;var diffOffset = 0;
+            switch (judgement) // Based on actual lower limit between each rating from the code, allows every judgement remove accuracy if you are off the judgements timing.
+            {
+                case 'good': diffOffset = 60; // Good Diff Offset.
+                case 'bad': diffOffset = 90; // Bad Diff Offset.
+                case 'shit': diffOffset = 135; // Shit Diff Offset.
+            }
+            if (hitDiff > 0) diffOffset = -diffOffset; // If the ms between the note and the press is positive, then make this negative so += actually subtracts instead.
+            var funnyDiff = hitDiff + diffOffset; // Apply the offset from the judgement given.
+            var checkDiff = funnyDiff < 0 ? (-funnyDiff) + 2 : funnyDiff - 2;
             if (noteStyle.toLowerCase() == "pixel")
             {
                 easeType = EaseUtil.stepped(2);
@@ -136,9 +144,9 @@ class HitText extends Module
                 hitText.borderStyle = FlxTextBorderStyle.OUTLINE;
                 hitText.borderColor = 0xFF000000;
                 hitText.borderSize = 3;
-
                 hitText.alpha = 1;
                 hitText.text = Std.string(hitDiff) + 'ms';
+                if (debugPreview) hitText.text += ' (${Std.string(checkDiff)})';
                 switch (judgement)
                 {
                     case 'sick':
@@ -176,6 +184,7 @@ class HitText extends Module
 
                 funnyText.alpha = 1;
                 funnyText.text = Std.string(hitDiff) + ' ms';
+                if (debugPreview) funnyText.text += ' (${Std.string(checkDiff)})';
                 switch (judgement)
                 {
                     case 'sick':
@@ -228,6 +237,36 @@ class HitText extends Module
     public function onNoteMiss(event:NoteScriptEvent)
     {
         popUpTime('miss', 9999);
+    }
+
+    public function onPause(event:PauseScriptEvent)
+    {
+        if (noStacking)
+        {
+            if (textTween != null) textTween.active = false;
+        }
+        else
+        {
+            for (tween in grpTweens)
+            {
+                if (tween != null) tween.active = false;
+            }
+        }
+    }
+
+    public function onResume(event:ScriptEvent)
+    {
+        if (noStacking)
+        {
+            if (textTween != null) textTween.active = true;
+        }
+        else
+        {
+            for (tween in grpTweens)
+            {
+                if (tween != null) tween.active = true;
+            }
+        }
     }
 
    public function getOffsets()
