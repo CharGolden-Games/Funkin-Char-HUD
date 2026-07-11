@@ -84,19 +84,35 @@ class KeyStrokes extends Module
         }
     }
 
+   public function getDisabled():Bool
+   {
+        if (Assets.exists('assets/data/hudOffsets.json'))
+        {
+            try
+            {
+                return Json.parse(Assets.getText('assets/data/vsCharHud/settings.json')).showKeyStrokes;
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+            }
+        }
+        return false;
+   }
+
    public function onCountdownStart(event:CountdownScriptEvent)
    {
         getOffsets();
         getColors();
         game = PlayState.instance;
-        disabled = false;
+        disabled = !getDisabled();
 
         if (game.isInCutscene) 
         {
             disabled = true;
             this.active = false;
-            return;
         }
+        if (disabled) return;
 
         if (left != null) left.destroy();
         if (down != null) down.destroy();

@@ -7,5 +7,6 @@
     "badsShitsHurt": false,
     "playGhostAnim": true,
     "resetInStoryMode": false,
-    "middlescroll": false
+    "middlescroll": false,
+    "showKeyStrokes": true
 }
