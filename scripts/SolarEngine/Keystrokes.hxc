@@ -18,8 +18,15 @@ import funkin.input.Controls;
 
 import StringTools;
 
+typedef ColorType = {
+    var left:Int;
+    var down:Int;
+    var up:Int;
+    var right:Int;
+}
+
 /**
- * Originally created by markedengine in LUA, modified by Dave (Former dev of Universe Engine)
+ * Originally created by markedengine in LUA, modified by Dave (Former dev of Solar Engine)
  * Ported by Char :3c=L
  */
 class KeyStrokes extends Module
@@ -36,11 +43,18 @@ class KeyStrokes extends Module
     var up:FlxSprite;
     var right:FlxSprite;
 
+    var noteColors:ColorType = {
+        left: "0xFFC24B99",
+        down: "0xFF00FFFF",
+        up: "0xFF12FA05",
+        right: "0xFFF9393F"
+    };
+
     var disabled:Bool = false;
 
     public function new()
     {
-        super("Universe Engine HUD - Keystrokes");
+        super("Solar Engine HUD - Keystrokes");
     }
 
     function add(o:FlxBasic):FlxBasic
@@ -73,6 +87,7 @@ class KeyStrokes extends Module
    public function onCountdownStart(event:CountdownScriptEvent)
    {
         getOffsets();
+        getColors();
         game = PlayState.instance;
         disabled = false;
 
@@ -88,10 +103,10 @@ class KeyStrokes extends Module
         if (up != null) up.destroy();
         if (right != null) right.destroy();
 
-        add(left = new FlxSprite(baseX - 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFFC24B99));
-        add(down = new FlxSprite(baseX, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFF00FFFF));
-        add(up = new FlxSprite(baseX, (baseY) + globalYOffset).makeGraphic(44, 44, 0xFF12FA05));
-        add(right = new FlxSprite(baseX + 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, 0xFFF9393F));
+        add(left = new FlxSprite(baseX - 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, noteColors.left));
+        add(down = new FlxSprite(baseX, (baseY + 47) + globalYOffset).makeGraphic(44, 44, noteColors.down));
+        add(up = new FlxSprite(baseX, (baseY) + globalYOffset).makeGraphic(44, 44, noteColors.up));
+        add(right = new FlxSprite(baseX + 47, (baseY + 47) + globalYOffset).makeGraphic(44, 44, noteColors.right));
 
         left.cameras = [getCamera('other')];
         down.cameras = [getCamera('other')];
@@ -188,6 +203,28 @@ class KeyStrokes extends Module
         {
             if (rightTweenAlpha != null) rightTweenAlpha.cancel();
             rightTweenAlpha = FlxTween.tween(right, {alpha: 0.3}, nbt, {ease: FlxEase.linear});
+        }
+   }
+
+   public function getColors()
+   {
+        if (Assets.exists('assets/data/SolarEngine/KeystrokesColor.json'))
+        {
+            try
+            {
+                var rawJson = Json.parse(Assets.getText('assets/data/SolarEngine/KeystrokesColor.json'));
+
+                noteColors = {
+                    left: Std.int(rawJson.left),
+                    down: Std.int(rawJson.down),
+                    up: Std.int(rawJson.up),
+                    right: Std.int(rawJson.right)
+                };
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing keystroke colors! `' + Std.string(e) + '`');
+            }   
         }
    }
 
