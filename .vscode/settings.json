@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "*.hxc": "haxe" // Allows for the vshaxe extension to automatically run on .hxc scripts
+    }
+}

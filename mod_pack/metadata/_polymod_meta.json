@@ -1,0 +1,14 @@
+{
+	"description": "A mod that adds some QOL changes to Funkin' as well as some visual additions!",
+	"mod_version": "3.2.0",
+	"title": "Char's Funkin HUD Modpack",
+	"contributors": [
+		{
+			"name": "CharGoldenYT",
+			"url": "https://vschar-official.com",
+			"role": "Coder"
+		}
+	],
+	"api_version": "0.8.0",
+	"license": "Apache-2.0"
+}

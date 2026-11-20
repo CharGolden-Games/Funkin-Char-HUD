@@ -1,0 +1,333 @@
+// Flixel
+import flixel.FlxSprite;
+import flixel.ui.FlxBar;
+import flixel.ui.FlxBarFillDirection;
+import flixel.util.FlxStringUtil;
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.FlxObject;
+import flixel.FlxCamera;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.FlxBasic;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.play.PauseSubState as SafeState;
+import funkin.Conductor;
+import funkin.graphics.FunkinSprite;
+import funkin.Paths;
+
+import StringTools;
+
+class TimeBar extends Module
+{
+    var game:PlayState = null;
+    var globalYOffset:Int = 0;    // change this to change how high the timeBar appears.
+    var globalXOffset:Int = 0;    // change this to change how far right the timeBar appears.
+    var disabled:Bool = false;
+
+    public function new()
+    {
+        super('TimeBar - Char HUD');
+    }
+
+    var timeBar:FlxBar;
+    var timeBarBG:FunkinSprite;
+    var timeTxt:FlxText;
+    var doFading:Bool = false;
+
+    function killShit()
+    {
+        try {
+            for (tween in timeTweens)
+            {
+                if (tween != null)
+                    tween.cancel();
+            }
+
+            if (timeBar != null)
+            {
+                timeBar.destroy();
+                timeBar = null;
+
+                timeBarBG.destroy();
+                timeBarBG = null;
+
+                timeTxt.destroy();
+                timeTxt = null;
+            }
+        }
+        catch(e:Dynamic)
+        {
+            return;
+        }
+        if (game != null) game == null;
+    }
+    var timePercent:Float = 0;
+    var vsCharColors:Bool = false;
+
+    public function onCountdownStart(event:CountdownScriptEvent) 
+    {
+        noUpdate = false;
+        checkSettings();
+        getOffsets();
+        game = PlayState.instance;
+        if (game.isInCutscene) 
+        {
+            this.active = false;
+            return;
+        }
+
+        if (timeBar != null)
+        {
+            timeBar.destroy();
+            timeBar = null;
+
+            timeBarBG.destroy();
+            timeBarBG = null;
+
+            timeTxt.destroy();
+            timeTxt = null;
+        }
+
+        timeBarBG = FunkinSprite.create(0,10,'timeBar');
+        timeBarBG.screenCenter(0x01);
+        timeBarBG.alpha = doFading ? 0 : 1;
+
+        timeBar = new FlxBar(timeBarBG.x + 4, timeBarBG.y + 4, FlxBarFillDirection.LEFT_TO_RIGHT, Std.int(timeBarBG.width - 8), Std.int(timeBarBG.height - 8), this, 'timePercent', 0, 1);
+        timeBar.scrollFactor.set();
+        var colors:Array<Int> = [0xFF000000, 0xFFFFFFFF];
+        if (vsCharColors)
+        {
+            colors = [0xFFB02B1C, 0xFFE6B72B];
+        }
+        timeBar.createFilledBar(colors[0], colors[1]);
+        timeBar.alpha = doFading ? 0 : 1;
+
+        var stageID:String = game.currentStageId;
+        var font:String = "vcr.ttf";
+        var size:Int = 25;
+
+        if (StringTools.startsWith(stageID, "school"))
+        {
+            font = "pixel.otf";
+            size = 21;
+        };
+
+        timeTxt = new FlxText(0, timeBar.y - 2, FlxG.width, '-:-- / -:--', size);
+        timeTxt.setFormat(Paths.font(font), size, 0xFFFFFFFF, "center", FlxTextBorderStyle.OUTLINE, 0xFF000000);
+        if (vsCharColors)
+        {
+            timeTxt.color = 0xFF2DE358;
+            timeTxt.borderColor = 0xFF1C374F;
+        }
+        timeTxt.scrollFactor.set();
+        timeTxt.zIndex = 999;
+        timeTxt.alpha = doFading ? 0 : 1;
+        timeTxt.borderSize = 2;
+        
+        add(timeBarBG);
+        add(timeBar);
+        add(timeTxt);
+
+        timeBar.cameras = [getCamera('hud')];
+        timeBarBG.cameras = [getCamera('hud')];
+        timeTxt.cameras = [getCamera('hud')];
+
+        timeBar.x += globalXOffset;
+        timeBarBG.x += globalXOffset;
+        timeTxt.x += globalXOffset;
+
+        timeBar.y += globalYOffset;
+        timeBarBG.y += globalYOffset;
+        timeTxt.y += globalYOffset;
+    }
+
+    function add(o:FlxBasic)
+    {
+        if (game != null) 
+            return game.add(o);
+        else
+            return o;
+    }
+
+    function getCamera(name:String):FlxCamera
+    {
+        if (game == null)
+        {
+            return new FlxCamera(); // If PlayState doesn't exist, you can't use cameras.
+        }
+        else
+        {
+            if (name.toLowerCase() == 'hud' || name.toLowerCase() == 'other')
+                return game.camHUD;
+            else
+                return game.camGame;
+        }
+    }
+
+    public function onSongEnd(event:ScriptEvent)
+    {
+        killShit(); // PLEASEEEEE
+    }
+
+    function onBeatHit(event:SongTimeScriptEvent):Void
+    {
+        if (event.beat % 4 == 0) checkColor();
+    }
+
+    var hasErrored:Bool = false;
+    var lightColors:Array<Int> = [0xFF31A2FD, 0xFF31FD8C, 0xFFFB33F5, 0xFFFBA633, 0xFFFD4531];
+    var e_lightColors:Array<Int> = [0xFF0000A0, 0xFF1B5000, 0xFF620089, 0xFFBB6D00, 0xFF980F00];
+    var t_lightColors:Array<Int> = [0xFF305FFC, 0xFF46D200, 0xFFFB500FF, 0xFFFF9500, 0xFFFF1900];
+    public function checkColor()
+    {
+        if (game != null)
+        {
+            try
+            {
+                var stageID:String = game.currentStageId;
+                if (StringTools.startsWith(stageID, "philly"))
+                {
+                    var curLight = FlxG.random.int(0, lightColors.length - 1);
+
+                    timeBar.createFilledBar(e_lightColors[curLight], lightColors[curLight]);
+                    timeBar.updateBar();
+
+                    timeTxt.color = t_lightColors[curLight];
+                    timeTxt.borderColor = e_lightColors[curLight];
+                }
+                hasErrored = false;
+            }
+            catch(e:Dynamic)
+            {
+                if (!hasErrored)
+                {
+                    trace('Error while getting philly color: $e');
+                    hasErrored = true;
+                }
+            }
+        }
+    }
+
+    function checkSettings()
+    {
+        if (!Assets.exists('assets/data/vsCharHud/settings.json'))
+        {
+            vsCharColors = false;
+            doFading = false;
+        }
+        else
+        {
+            try
+            {
+                var settings:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/settings.json'));
+
+                vsCharColors = settings.useVSCharColors;
+                doFading = settings.doFading;
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+
+                vsCharColors = false;
+                doFading = false;
+            }
+        }
+    }
+
+    var timeTweens:Array<FlxTween> = [];
+    public function onSongStart(event:ScriptEvent)
+    {
+        if (game.isInCutscene) return;
+        if (!doFading) return;
+		timeTweens.push(FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+		timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+		timeTweens.push(FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut}));
+    }
+
+    var noUpdate:Bool = false;
+    public function onUpdate(event:UpdateScriptEvent)
+    {
+        if (game == null) return;
+        if (game.isInCutscene) return;
+        if (timeTxt != null && Conductor.instance != null && FlxG.sound.music != null)
+            timeTxt.text = FlxStringUtil.formatTime(Conductor.instance.songPosition / 1000) + ' / ' + FlxStringUtil.formatTime(FlxG.sound.music.length / 1000);
+
+        if (timeBar != null)
+        {
+            try
+            {
+                timePercent = Conductor.instance.songPosition / FlxG.sound.music.length;
+                timeBar.value = timePercent;
+            }
+            catch (e:Dynamic)
+            {
+                var FUCKALL:String = '';
+            }
+            //trace(timePercent);
+        }
+    }
+    
+    public function onSubStateOpenBegin(event):Void 
+    {
+        super.onSubStateOpenBegin(event);
+        
+        if (!Std.isOfType(event.targetState, SafeState))
+        {
+            noUpdate = true;
+            killShit();
+        }
+    }
+
+    public function onSongRetry(event:ScriptEvent)
+    {
+        game = null;
+        for (tween in timeTweens)
+        {
+            if (tween != null)
+                tween.cancel();
+        }
+        if (timeBar != null && doFading)
+        {
+            timeTweens.push(FlxTween.tween(timeBar, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeBarBG, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+            timeTweens.push(FlxTween.tween(timeTxt, {alpha: 0}, 0.5, {ease: FlxEase.circOut}));
+        }
+    }
+
+   public function getOffsets()
+   {
+        if (!Assets.exists('assets/data/hudOffsets.json'))
+        {
+            globalYOffset = 0;
+            globalXOffset = 0;
+        }
+        else
+        {
+            try
+            {
+                var offset:Array<Int> = Json.parse(Assets.getText('assets/data/hudOffsets.json')).hitText;
+    
+                globalXOffset = offset[0];
+                globalYOffset = offset[1];
+            }
+            catch(e:Dynamic)
+            {
+                trace('Shit there was an error grabbing mod settings! `' + Std.string(e) + '`');
+    
+                globalYOffset = 0;
+                globalXOffset = 0;
+            }
+        }
+   }
+}

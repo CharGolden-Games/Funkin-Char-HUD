@@ -1,0 +1,154 @@
+// Flixel
+import flixel.text.FlxText;
+import flixel.text.FlxTextBorderStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.FlxG;
+import flixel.util.FlxStringUtil;
+
+// Haxe
+import haxe.Json;
+
+// OpenFL
+import openfl.utils.Assets;
+
+// Funkin
+import funkin.Paths;
+import funkin.Highscore;
+import funkin.modding.module.Module;
+import funkin.play.PlayState;
+import funkin.Conductor;
+
+import StringTools;
+
+typedef HBColor = {
+    var affects:Array<String>;
+    var color:String;
+    @:optional var altColor:String; // if this is defined, randomly uses this color instead.
+    @:optional var comment:String; // does nothing.
+}
+
+class HealthBar extends Module
+{
+    var hbColors:Array<HBColor> = [];
+    var game:PlayState;
+    var printCharJson:Bool = false; // Debug thing.
+    public function new()
+    {
+        super('Healthbar Colors - Char HUD');
+    }
+
+    public function onCountdownStart(event:CountdownScriptEvent)
+    {
+        game = PlayState.instance;
+
+        merge_ColorJson();
+        
+        var charID_D:String = '';
+        var charID_B:String = '';
+        if (game.currentStage.getDad() != null)
+            charID_D = game.currentStage.getDad().characterId;
+        if (game.currentStage.getBoyfriend() != null)
+            charID_B = game.currentStage.getBoyfriend().characterId;
+        
+        game.healthBar.createFilledBar(getColor(charID_D, false), getColor(charID_B, true));
+        game.healthBar.updateBar();
+    }
+
+    function merge_ColorJson():Array<Int>
+    {
+        hbColors = [];
+        if (Assets.exists('assets/data/vsCharHud/colors.json'))
+        {
+            var json:Dynamic = Json.parse(Assets.getText('assets/data/vsCharHud/colors.json'));
+            hbColors = json.colors;
+        }
+
+        return hbColors;
+    }
+
+    function hexRGB(r:Int, g:Int, b:Int):Null<Int>
+    {
+        var hexCodes:String = "0123456789ABCDEF";
+        var hexString:String = '0x';
+
+        hexString += 'FF'; // Colored healthbar needs alpha value.
+        hexString += hexCodes.charAt(r/16) + hexCodes.charAt(r%16);
+        hexString += hexCodes.charAt(g/16) + hexCodes.charAt(g%16);
+        hexString += hexCodes.charAt(b/16) + hexCodes.charAt(b%16);
+
+        //trace(hexString);
+        return Std.parseInt(hexString);
+    }
+
+    function getColor(charJson:String, isPlayer:Bool = false):Int
+    {
+        var json:Dynamic = Json.parse(Assets.getText('assets/data/characters/' + charJson + '.json'));
+
+        if (json.inheritsFrom != null)
+        {
+            return getColor(json.inheritsFrom, isPlayer);
+        }
+
+        var color:Null<Array<Int>> = json.healthBarColor;
+        var color2:Null<Array<Iny>> = json.altHBC;
+        if (color == null)
+        {
+            // The following happens if instead you have a character that's in the json.
+            if (StringTools.contains(charJson, "-player") || StringTools.contains(charJson, "-playable") || StringTools.contains(charJson, "-dark"))
+            {
+                // Base game shi-
+                charJson = charJson.split("-player").join("").split("-playable").join("").split("-dark").join("");
+            }
+
+            if (StringTools.contains(charJson, "-spooky") || StringTools.contains(charJson, "-purple")) // Spooky Mix 
+                charJson = charJson.split("-spooky").join("").split("-purple").join("");
+
+            if (StringTools.contains("-pixel") && (!StringTools.startsWith("bf") && !StringTools.startsWith("gf")))
+                charJson.split("-pixel").join("");
+            
+            if (StringTools.contains("-nonsense"))
+                charJson = charJson.split("-nonsense").join(""); // A Nonsensical Friday Night V1.5
+
+            var offset:Int = 0;
+            if (isPlayer) offset = 30;
+            var text = new FlxText(0, offset, 0, charJson, 20);
+            text.cameras = [game.camHUD];
+            if (printCharJson) game.add(text);            
+            for (color in hbColors)
+            {
+                for (affects in color.affects)
+                {
+                    if (affects == charJson)
+                    {
+                        if (color.altColor != null && FlxG.random.bool(25))
+                        {
+                            return Std.int(color.altColor);
+                        }
+                        return Std.int(color.color);
+                    }
+                }
+            }
+
+            return isPlayer ? 0xFF00FF00 : 0xFFFF0000;
+        }
+        else
+        {
+            if (Std.parseInt(Std.string(json.healthBarColor)) != null)
+            {
+                if (json.altHBC != null)
+                {
+                    var newColor:Int = Std.parseInt(Std.string(json.altHBC));
+                    if (newColor != null && FlxG.random.bool(25))
+                        return newColor;
+                }
+                return Std.parseInt(Std.string(json.healthBarColor));
+            }
+
+            if (color2 != null && FlxG.random.bool(25))
+                return hexRGB(color2[0], color2[1], color2[2]);
+
+            return hexRGB(color[0], color[1], color[2]);
+        }
+    }
+}

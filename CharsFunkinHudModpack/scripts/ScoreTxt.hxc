@@ -25,6 +25,7 @@ import StringTools;
 
 class ScoreTxt extends Module
 {
+	var useOldFormat:Bool = false;
     var game:PlayState = null;
     var scoreTxtTween:FlxTween;
     var scoreTxt:FlxText;
@@ -129,7 +130,10 @@ class ScoreTxt extends Module
         fcString = 'N/A';
         rating = '';
         scoreString = 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET';
-
+        if (!useOldFormat)
+        {
+            scoreString = 'Coolness Points: 0 | Screw-ups: 0 | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': 0%\nRating: ?';
+        }
         
         var stageID:String = game.currentStageId;
         var font:String = "vcr.ttf";
@@ -185,18 +189,25 @@ class ScoreTxt extends Module
             updateFC();
             updateRating();
 
-            var addition:String = '';
-            if (!['Bruh', 'Get better nerd.', 'Are you even hitting the notes?', 'COORDINATION, HAVE YOU HEARD OF IT?'].contains(rating))
+            if (useOldFormat)
             {
-                if ((misses + bads + shits) > 0)
-                    addition = ' (Actually you kinda fucking suck.)';
-                if (fcString == 'Clear')
-                    addition = ' (Actually you fucking REEK!)';
+                var addition:String = '';
+                if (!['Bruh', 'Get better nerd.', 'Are you even hitting the notes?', 'COORDINATION, HAVE YOU HEARD OF IT?'].contains(rating))
+                {
+                    if ((misses + bads + shits) > 0)
+                        addition = ' (Actually you kinda fucking suck.)';
+                    if (fcString == 'Clear')
+                        addition = ' (Actually you fucking REEK!)';
+                }
+                scoreString = 'Score: ' + FlxStringUtil.formatMoney(Math.floor(game.songScore), false) 
+                + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
+                + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
             }
-            var scoreString:String = 'Score: ' + FlxStringUtil.formatMoney(Math.floor(game.songScore), false) 
-            + ' | Messed up ' + Std.string(misses + bads + shits) + ' times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' 
-            + Std.string(accuracyPercent) + '% [' + fcString + '] \nRating: ' + rating + addition;
-
+            else
+            {
+                acc = accuracyPercent;
+                scoreString = 'Coolness Points: ' + FlxStringUtil.formatMoney(Math.floor(game.songScore), false)  + ' | Screw-ups: ' + misses + ' | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' + acc + '%\nRating: ' + rating + ' ' + getRank();
+            }
             if (!vsCharHUD)
             {
                 scoreString = 'Score: ' + Std.string(FlxStringUtil.formatMoney(Math.floor(game.songScore), false)) + ' | Misses: ' + Std.string(misses) + ' | Rating: ' + rating + ' (' + Std.string(accuracyPercent) + '%) - ' + fcString;
@@ -227,6 +238,7 @@ class ScoreTxt extends Module
             badsShitsHurt = false;
             playGhostAnim = true;
             useVSCharColors = false;
+            useOldFormat = false;
         }
         else
         {
@@ -241,6 +253,7 @@ class ScoreTxt extends Module
                 badsShitsHurt = settings.badsShitsHurt;
                 playGhostAnim = settings.playGhostAnim;
                 useVSCharColors = settings.useVSCharColors;
+                useOldFormat = settings.useOldFormat;
             }
             catch(e:Dynamic)
             {
@@ -253,6 +266,7 @@ class ScoreTxt extends Module
                 badsShitsHurt = false;
                 playGhostAnim = true;
                 useVSCharColors = false;
+                useOldFormat = false;
             }
         }
     }
@@ -260,7 +274,7 @@ class ScoreTxt extends Module
     function updateRating()
     {
         var ratings:Array<Array<Dynamic>> = vsCharRatingStuff;
-        if (!vsCharHUD)
+        if (!vsCharHUD || !useOldFormat)
             ratings = ratingStuff;
         if (accuracy >= 1)
         {
@@ -426,5 +440,79 @@ class ScoreTxt extends Module
         //scoreTxt.text = scoreString = vsCharHUD ? 'Score: 0 | Messed up 0 times | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': N/A\nRating: YOU HAVEN\'T DONE SHIT YET' : 'Score: 0 | Misses: 0 | Rating: ?';
         if (scoreAlphaTween != null) scoreAlphaTween = null;
         if (scoreTxt != null && doFading) scoreAlphaTween = FlxTween.tween(scoreTxt, {alpha: 0}, 0.5, {ease: FlxEase.linear});
+    }
+
+    // New shit!
+	var rank_str:String = "P RANK";
+	var acc:Float = 0;
+
+	var capLevel:Array<Array<Float>> = [
+        [100, 0],
+        [90, 1],
+        [70, 10],
+        [50, 100]];
+	var ranks:Array<Array<Dynamic>> = [
+		["P", 100], // P is always >= 98
+		["S", 97],
+		["A", 89],
+		["B", 68],
+		["C", 49],
+		["D", 29],
+		["F", 9]
+	];
+
+	function validateCaps()
+	{
+		var i:Int = -1;
+		for (cap in capLevel)
+		{
+			i++;
+			if (cap[0] > 100)
+			{
+				cap[0] = 100;
+				Logs.printOut("Cap #" + i + " was too high! Expected: `100` got: `" + capLevel[i][0] + "` changing to `100`", ERROR);
+			}
+		}
+	}
+    
+    function get_cap():Float
+    {
+        var currentCap:Float = 100;
+        for (cap in capLevel)
+        {
+            if (cap[1] >= misses)
+            {
+                currentCap = cap[0];
+            }
+        }
+
+        return currentCap;
+    }
+
+    function getValidRating():String
+    {
+        var c = get_cap();
+        var a = Math.min(acc, c);
+
+        var r = "P";
+
+        for (rank in ranks)
+        {
+            if (a <= rank[1]) r = rank[0];
+        }
+
+        if (Math.floor(a) == 69) r = "69";
+
+        return '$r RANK';
+    }
+
+    function getRank()
+    {
+        if (fcString == "")
+        {
+            return "";
+        }
+
+        return '(' + fcString + ' [' + getValidRating() + '])';
     }
 }

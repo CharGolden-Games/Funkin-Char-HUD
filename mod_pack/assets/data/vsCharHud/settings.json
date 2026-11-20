@@ -1,0 +1,14 @@
+{
+    "":"'useOldScoreTextFormat' sets it to the format used pre modpack 3.2.0",
+    "useVSCharColors": false,
+    "vsCharHUD": false,
+    "simpleRatings": false,
+    "includeTiming": false,
+    "doFading": true,
+    "badsShitsHurt": false,
+    "playGhostAnim": true,
+    "resetInStoryMode": false,
+    "middlescroll": false,
+    "showKeyStrokes": true,
+    "useOldScoreTextFormat": false
+}
