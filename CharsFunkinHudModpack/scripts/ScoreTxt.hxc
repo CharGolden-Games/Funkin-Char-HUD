@@ -205,7 +205,8 @@ class ScoreTxt extends Module
             }
             else
             {
-                acc = accuracyPercent;
+                var ratingPercent = totalHit / totalPlayed;
+                acc = Math.floor(ratingPercent * 10000) / 100;
                 scoreString = 'Coolness Points: ' + FlxStringUtil.formatMoney(Math.floor(game.songScore), false)  + ' | Screw-ups: ' + misses + ' | Accuracy ' + (simpleRatings ? '(Simple)' : '(Complex)') + ': ' + acc + '%\nRating: ' + rating + ' ' + getRank();
             }
             if (!vsCharHUD)
@@ -447,18 +448,19 @@ class ScoreTxt extends Module
 	var acc:Float = 0;
 
 	var capLevel:Array<Array<Float>> = [
-        [100, 0],
-        [90, 1],
+        [50, 100],
         [70, 10],
-        [50, 100]];
+        [90, 1],
+        [100, 0],
+    ];
 	var ranks:Array<Array<Dynamic>> = [
-		["P", 100], // P is always >= 98
-		["S", 97],
-		["A", 89],
-		["B", 68],
-		["C", 49],
+		["F", 9],
 		["D", 29],
-		["F", 9]
+		["C", 49],
+		["B", 68],
+		["A", 89],
+		["S", 97],
+		["P", 100], // P is always >= 98
 	];
 
 	function validateCaps()
@@ -498,7 +500,7 @@ class ScoreTxt extends Module
 
         for (rank in ranks)
         {
-            if (a <= rank[1]) r = rank[0];
+            if (a >= rank[1]) r = rank[0];
         }
 
         if (Math.floor(a) == 69) r = "69";

@@ -21,7 +21,7 @@ typedef PolymodMeta = {
 
 class GenerateMetadata
 {
-    public static var modpack_version:Version = [3,2,0]; // The actual pack version.
+    public static var modpack_version:Version = [3,2,1]; // The actual pack version.
     public static var api_version:Version = [0,8,0]; // The Funkin' Version the modpack targets.
     public static var license:String = "Apache-2.0";
 
