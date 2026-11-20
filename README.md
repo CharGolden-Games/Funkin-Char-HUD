@@ -1,6 +1,6 @@
 # Char's HUD - A HUD Mod for Funkin' 0.6.x!
 
-## You can download the code and it will still work just as well as the releases.
+## If you haven't added 7zip to your path, follow [this](docs/manual-compile.md) tutorial, if you have already added it, or are on Linux, follow [this](docs/COMPILING.md) tutorial
 
 ## Additions/Changes
 
